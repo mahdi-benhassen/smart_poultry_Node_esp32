@@ -44,7 +44,8 @@ void NetworkManager::init() {
                                                         NULL,
                                                         &instance_got_ip));
 
-    wifi_config_t wifi_config = {0};
+    wifi_config_t wifi_config;
+    memset(&wifi_config, 0, sizeof(wifi_config));
     snprintf((char*)wifi_config.sta.ssid, 32, "SSID_PLACEHOLDER");
     snprintf((char*)wifi_config.sta.password, 64, "PASSWORD_PLACEHOLDER");
     wifi_config.sta.threshold.authmode = WIFI_AUTH_WPA2_PSK;

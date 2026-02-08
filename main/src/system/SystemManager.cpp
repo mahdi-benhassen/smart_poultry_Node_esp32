@@ -17,6 +17,14 @@ static const char *TAG = "SystemManager";
 
 SystemManager::SystemManager() {}
 
+void SystemManager::registerSensor(Sensor* sensor) {
+    sensors.push_back(sensor);
+}
+
+void SystemManager::registerActuator(Actuator* actuator) {
+    actuators.push_back(actuator);
+}
+
 void SystemManager::init() {
     ESP_LOGI(TAG, "Registering Sensors...");
 

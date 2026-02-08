@@ -14,6 +14,8 @@ void MQ2Sensor::init() {
     if (adc1_handle_mq2 == NULL) {
         adc_oneshot_unit_init_cfg_t init_config1 = {
             .unit_id = ADC_UNIT_1,
+            .clk_src = ADC_DIGI_CLK_SRC_DEFAULT,
+            .ulp_mode = ADC_ULP_MODE_DISABLE,
         };
         // This might fail if unit 1 is already inited by MQ137. 
         // In production, move ADC init to SystemManager. 
@@ -26,7 +28,7 @@ void MQ2Sensor::init() {
     }
 
     adc_oneshot_chan_cfg_t config = {
-        .atten = ADC_ATTEN_DB_11,
+        .atten = ADC_ATTEN_DB_12,
         .bitwidth = ADC_BITWIDTH_DEFAULT,
     };
     // Mapping PIN_MQ2 (35) to ADC channel. GPIO35 is ADC1_CHANNEL_7
