@@ -33,6 +33,10 @@ static int wait_for_level(gpio_num_t pin, int level, int timeout_us) {
 void DHTSensor::read() {
     uint8_t data[5] = {0};
     
+    // Critical Section for precise timing
+    portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
+    portENTER_CRITICAL(&mux);
+
     // 1. Start Signal
     gpio_set_direction(pin, GPIO_MODE_OUTPUT);
     gpio_set_level(pin, 0);
@@ -42,17 +46,37 @@ void DHTSensor::read() {
     gpio_set_direction(pin, GPIO_MODE_INPUT);
 
     // 2. Wait for Response
-    if (wait_for_level(pin, 0, 80) == -1) { ESP_LOGW(TAG, "Timeout waiting for start low"); return; }
-    if (wait_for_level(pin, 1, 80) == -1) { ESP_LOGW(TAG, "Timeout waiting for start high"); return; }
-    if (wait_for_level(pin, 0, 80) == -1) { ESP_LOGW(TAG, "Timeout waiting for data start"); return; }
+    if (wait_for_level(pin, 0, 80) == -1) { 
+        portEXIT_CRITICAL(&mux);
+        ESP_LOGW(TAG, "Timeout waiting for start low"); 
+        return; 
+    }
+    if (wait_for_level(pin, 1, 80) == -1) { 
+        portEXIT_CRITICAL(&mux);
+        ESP_LOGW(TAG, "Timeout waiting for start high"); 
+        return; 
+    }
+    if (wait_for_level(pin, 0, 80) == -1) { 
+        portEXIT_CRITICAL(&mux);
+        ESP_LOGW(TAG, "Timeout waiting for data start"); 
+        return; 
+    }
 
     // 3. Read Data (40 bits)
     for (int i = 0; i < 40; i++) {
-        if (wait_for_level(pin, 1, 50) == -1) { ESP_LOGW(TAG, "Timeout waiting for bit start"); return; }
+        if (wait_for_level(pin, 1, 50) == -1) { 
+            portEXIT_CRITICAL(&mux);
+            ESP_LOGW(TAG, "Timeout waiting for bit start"); 
+            return; 
+        }
         
         // Measure duration of high pulse
         int duration = wait_for_level(pin, 0, 70);
-        if (duration == -1) { ESP_LOGW(TAG, "Timeout waiting for bit end"); return; }
+        if (duration == -1) { 
+            portEXIT_CRITICAL(&mux);
+            ESP_LOGW(TAG, "Timeout waiting for bit end"); 
+            return; 
+        }
         
         // If high pulse > 28us, it's a '1', else '0'
         // Typical '0' is 26-28us, '1' is 70us. Threshold at 40us.
@@ -60,6 +84,8 @@ void DHTSensor::read() {
             data[i / 8] |= (1 << (7 - (i % 8)));
         }
     }
+    
+    portEXIT_CRITICAL(&mux);
 
     // 4. Checksum
     if (data[4] == ((data[0] + data[1] + data[2] + data[3]) & 0xFF)) {

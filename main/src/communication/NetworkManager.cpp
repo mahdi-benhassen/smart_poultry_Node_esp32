@@ -99,7 +99,12 @@ void NetworkManager::startSmartConfig() {
     ESP_ERROR_CHECK( esp_smartconfig_start(&cfg) );
     
     // Register SmartConfig Handler
-    ESP_ERROR_CHECK( esp_event_handler_register(SC_EVENT, ESP_EVENT_ANY_ID, &smartconfig_event_handler, NULL) );
+    esp_err_t err = esp_event_handler_register(SC_EVENT, ESP_EVENT_ANY_ID, &smartconfig_event_handler, NULL);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to register SC handler: %s", esp_err_to_name(err));
+        provisioning = false;
+        esp_smartconfig_stop();
+    }
 }
 
 void NetworkManager::init() {
@@ -156,7 +161,8 @@ void NetworkManager::init() {
     if (strlen((char*)wifi_config.sta.ssid) > 0) {
         ESP_LOGI(TAG, "Found saved/configured SSID: %s", wifi_config.sta.ssid);
         has_config = true;
-        ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
+        err = esp_wifi_set_config(WIFI_IF_STA, &wifi_config);
+        if (err != ESP_OK) ESP_LOGW(TAG, "Failed to set config: %s", esp_err_to_name(err));
     }
 
     err = esp_wifi_start();
@@ -177,6 +183,7 @@ void NetworkManager::init() {
     esp_mqtt_client_config_t mqtt_cfg = {};
     #ifdef MQTT_SERVER
     mqtt_cfg.broker.address.uri = MQTT_SERVER; // Ensure MQTT_SERVER includes scheme e.g. "mqtt://broker.com"
+    // TODO: Update this URL to your actual deployment server or S3 bucket before shipping.
     // If MQTT_SERVER is just domain, prepend scheme
     // For now assuming full URI or we construct it.
     // Let's use a safer approach if needed.
@@ -250,6 +257,7 @@ void NetworkManager::checkOTAUpdate() {
     // In a real scenario, we would check a manifest or version file first.
     // Here we assume a direct URL to the binary.
     // Replace with your actual firmware URL
+    // TODO: Update this URL to your actual deployment server or S3 bucket before shipping.
     #define OTA_URL "https://example.com/firmware.bin"
     
     esp_http_client_config_t config = {};
