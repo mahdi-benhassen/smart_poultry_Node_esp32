@@ -152,14 +152,23 @@ void SystemManager::logicTask(void* pvParameters) {
 void SystemManager::commsTask(void* pvParameters) {
     SystemManager* self = (SystemManager*)pvParameters;
     DataHub* hub = self->getDataHub();
+    NetworkManager* net = &self->netManager; // We need access to netManager
+
+    // Check for OTA update on boot (or periodic)
+    // net->checkOTAUpdate();
 
     for (;;) {
         SystemData snapshot = hub->getSnapshot();
         // Construct JSON
         // We can use cJSON here
         // NetworkManager::publish("poultry/status", json_string);
+        net->publish("poultry/status", "{\"status\":\"ok\"}"); // Example usage
         
         ESP_LOGI(TAG, "Comms: Broadcasting State %d, Temp %.2f", (int)snapshot.currentState, snapshot.temperature);
+        
+        // Periodic OTA check (e.g., once a day, or triggered by MQTT command)
+        // For now, just a placeholder.
+        
         vTaskDelay(pdMS_TO_TICKS(5000)); // Publish every 5 seconds
     }
 }

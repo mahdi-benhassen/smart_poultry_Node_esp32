@@ -3,6 +3,8 @@
 #include "esp_wifi.h"
 #include "nvs_flash.h"
 #include "esp_smartconfig.h"
+#include "esp_https_ota.h"
+#include "esp_crt_bundle.h"
 
 static const char *TAG = "NetworkManager";
 
@@ -60,6 +62,8 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
         esp_wifi_connect();
     } else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
         NetworkManager* nm = (NetworkManager*)arg;
+        if (nm) nm->connected = false;
+        
         if (nm && !nm->isProvisioning()) {
             esp_wifi_connect();
             ESP_LOGI(TAG, "retry to connect to the AP");
@@ -69,10 +73,19 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
     } else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
         ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
         ESP_LOGI(TAG, "got ip:" IPSTR, IP2STR(&event->ip_info.ip));
+        NetworkManager* nm = (NetworkManager*)arg;
+        if (nm) {
+             nm->connected = true;
+             // We should also potentially reconnect MQTT here if it doesn't auto-reconnect
+             // esp-mqtt usually handles reconnects if network is available
+             nm->flushQueue(); 
+        }
     }
 }
 
-NetworkManager::NetworkManager() : mqtt_client(NULL), connected(false), provisioning(false) {}
+NetworkManager::NetworkManager() : mqtt_client(NULL), connected(false), provisioning(false) {
+    queueMutex = xSemaphoreCreateMutex();
+}
 
 void NetworkManager::startSmartConfig() {
     provisioning = true;
@@ -180,8 +193,75 @@ void NetworkManager::init() {
 }
 
 void NetworkManager::publish(const char* topic, const char* payload) {
-    if (mqtt_client) {
-        esp_mqtt_client_publish(mqtt_client, topic, payload, 0, 1, 0);
+    if (mqtt_client && connected) {
+        // Try to publish
+        int msg_id = esp_mqtt_client_publish(mqtt_client, topic, payload, 0, 1, 0);
+        if (msg_id == -1) {
+            ESP_LOGW(TAG, "Failed to publish, queueing message...");
+            // If failed (and not just disconnected), queue it? 
+            // Usually -1 means enqueue failed or client not init.
+            // But we trust 'connected' flag mostly.
+        } else {
+            return; // Success
+        }
+    }
+
+    // If we are here, we are either not connected or publish failed.
+    // Add to Offline Buffer
+    if (xSemaphoreTake(queueMutex, pdMS_TO_TICKS(10)) == pdTRUE) {
+        if (offlineQueue.size() >= MAX_QUEUE_SIZE) {
+            offlineQueue.pop_front(); // Drop oldest
+            ESP_LOGW(TAG, "Queue full, dropping oldest message");
+        }
+        offlineQueue.push_back({std::string(topic), std::string(payload)});
+        xSemaphoreGive(queueMutex);
+    }
+}
+
+void NetworkManager::flushQueue() {
+    if (xSemaphoreTake(queueMutex, pdMS_TO_TICKS(100)) == pdTRUE) {
+        if (!offlineQueue.empty()) {
+             ESP_LOGI(TAG, "Flushing %d offline messages...", offlineQueue.size());
+             while (!offlineQueue.empty() && connected) {
+                 auto msg = offlineQueue.front();
+                 int msg_id = esp_mqtt_client_publish(mqtt_client, msg.first.c_str(), msg.second.c_str(), 0, 1, 0);
+                 if (msg_id != -1) {
+                     offlineQueue.pop_front();
+                 } else {
+                     // If publish fails here, stop flushing and wait for next chance
+                     break; 
+                 }
+                 vTaskDelay(pdMS_TO_TICKS(10)); // Slight delay to prevent flooding
+             }
+        }
+        xSemaphoreGive(queueMutex);
+    }
+}
+
+void NetworkManager::checkOTAUpdate() {
+    if (!connected) return;
+
+    ESP_LOGI(TAG, "Checking for OTA Update...");
+    
+    // In a real scenario, we would check a manifest or version file first.
+    // Here we assume a direct URL to the binary.
+    // Replace with your actual firmware URL
+    #define OTA_URL "https://example.com/firmware.bin"
+    
+    esp_http_client_config_t config = {};
+    config.url = OTA_URL;
+    config.crt_bundle_attach = esp_crt_bundle_attach; // Use built-in certs
+    config.skip_cert_common_name_check = true; // For testing only!
+
+    esp_https_ota_config_t ota_config = {};
+    ota_config.http_config = &config;
+
+    esp_err_t ret = esp_https_ota(&ota_config);
+    if (ret == ESP_OK) {
+        ESP_LOGI(TAG, "OTA Update successful! Rebooting...");
+        esp_restart();
+    } else {
+        ESP_LOGE(TAG, "OTA Update failed");
     }
 }
 

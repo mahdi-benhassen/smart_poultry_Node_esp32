@@ -29,4 +29,6 @@ idf_component_register(
              "freertos"
              "esp_adc"
              "esp_timer"
+             "esp_https_ota"
+             "app_update"
 )

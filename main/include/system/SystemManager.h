@@ -8,6 +8,8 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
+#include "communication/NetworkManager.h"
+
 class LogicEngine; // Forward declaration
 
 class SystemManager {
@@ -17,7 +19,11 @@ private:
     
     DataHub* dataHub;
     LogicEngine* logicEngine;
+    
+public:
+    NetworkManager netManager;
 
+private:
     // Task Handles
     TaskHandle_t sensingTaskHandle;
     TaskHandle_t logicTaskHandle;

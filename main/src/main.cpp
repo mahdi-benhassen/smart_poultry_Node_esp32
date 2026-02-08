@@ -8,7 +8,7 @@
 
 #include "Config.h"
 #include "system/SystemManager.h"
-#include "communication/NetworkManager.h"
+// #include "communication/NetworkManager.h" // Now included via SystemManager
 
 static const char *TAG = "MAIN";
 
@@ -28,9 +28,8 @@ extern "C" void app_main(void)
     SystemManager sysManager;
     sysManager.init();
 
-    // Initialize Network
-    NetworkManager netManager;
-    netManager.init();
+    // Initialize Network (Now managed inside SystemManager or passed to it)
+    sysManager.netManager.init();
 
     // Start Application Tasks
     sysManager.startTasks();
