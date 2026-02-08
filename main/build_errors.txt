@@ -1,0 +1,123 @@
+Run git config --global --add safe.directory "$GITHUB_WORKSPACE"
+  git config --global --add safe.directory "$GITHUB_WORKSPACE"
+  . $IDF_PATH/export.sh
+  idf.py build
+  shell: sh -e {0}
+/__w/_temp/9751d883-828f-418d-8e42-89066f7cc011.sh: 22: /opt/esp/idf/export.sh: [[: not found
+Detecting the Python interpreter
+Checking "python3" ...
+Python 3.8.10
+"python3" has been detected
+Checking Python compatibility
+Checking other ESP-IDF version.
+Adding ESP-IDF tools to PATH...
+Checking if Python packages are up to date...
+Python requirements are satisfied.
+Requirement files:
+ - /opt/esp/idf/tools/requirements/requirements.core.txt
+Python being checked: /opt/esp/python_env/idf5.1_py3.8_env/bin/python
+Updated PATH variable:
+  /opt/esp/idf/components/espcoredump:/opt/esp/idf/components/partition_table:/opt/esp/idf/components/app_update:/opt/esp/tools/xtensa-esp-elf-gdb/12.1_20231023/xtensa-esp-elf-gdb/bin:/opt/esp/tools/riscv32-esp-elf-gdb/12.1_20231023/riscv32-esp-elf-gdb/bin:/opt/esp/tools/xtensa-esp32-elf/esp-12.2.0_20250801/xtensa-esp32-elf/bin:/opt/esp/tools/xtensa-esp32s2-elf/esp-12.2.0_20250801/xtensa-esp32s2-elf/bin:/opt/esp/tools/xtensa-esp32s3-elf/esp-12.2.0_20250801/xtensa-esp32s3-elf/bin:/opt/esp/tools/riscv32-esp-elf/esp-12.2.0_20250801/riscv32-esp-elf/bin:/opt/esp/tools/esp32ulp-elf/2.35_20220830/esp32ulp-elf/bin:/opt/esp/tools/cmake/3.30.2/bin:/opt/esp/tools/openocd-esp32/v0.12.0-esp32-20250707/openocd-esp32/bin:/opt/esp/tools/qemu-xtensa/esp_develop_8.1.3_20231206/qemu/bin:/opt/esp/tools/qemu-riscv32/esp_develop_8.1.3_20231206/qemu/bin:/opt/esp/tools/xtensa-esp-elf-gdb/12.1_20231023/xtensa-esp-elf-gdb/bin:/opt/esp/tools/riscv32-esp-elf-gdb/12.1_20231023/riscv32-esp-elf-gdb/bin:/opt/esp/tools/xtensa-esp32-elf/esp-12.2.0_20250801/xtensa-esp32-elf/bin:/opt/esp/tools/xtensa-esp32s2-elf/esp-12.2.0_20250801/xtensa-esp32s2-elf/bin:/opt/esp/tools/xtensa-esp32s3-elf/esp-12.2.0_20250801/xtensa-esp32s3-elf/bin:/opt/esp/tools/riscv32-esp-elf/esp-12.2.0_20250801/riscv32-esp-elf/bin:/opt/esp/tools/esp32ulp-elf/2.35_20220830/esp32ulp-elf/bin:/opt/esp/tools/cmake/3.30.2/bin:/opt/esp/tools/openocd-esp32/v0.12.0-esp32-20250707/openocd-esp32/bin:/opt/esp/tools/qemu-xtensa/esp_develop_8.1.3_20231206/qemu/bin:/opt/esp/tools/qemu-riscv32/esp_develop_8.1.3_20231206/qemu/bin:/opt/esp/python_env/idf5.1_py3.8_env/bin:/opt/esp/idf/tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+Done! You can now compile ESP-IDF projects.
+Go to the project directory and run:
+
+  idf.py build
+
+Executing action: all (aliases: build)
+Running cmake in directory /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/build
+Executing "cmake -G Ninja -DPYTHON_DEPS_CHECKED=1 -DPYTHON=/opt/esp/python_env/idf5.1_py3.8_env/bin/python -DESP_PLATFORM=1 -DCCACHE_ENABLE=1 /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32"...
+-- IDF_TARGET not set, using default target: esp32
+-- Found Git: /usr/bin/git (found version "2.25.1")
+-- ccache will be used for faster recompilation
+-- The C compiler identification is GNU 12.2.0
+-- The CXX compiler identification is GNU 12.2.0
+-- The ASM compiler identification is GNU
+-- Found assembler: /opt/esp/tools/xtensa-esp32-elf/esp-12.2.0_20250801/xtensa-esp32-elf/bin/xtensa-esp32-elf-gcc
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /opt/esp/tools/xtensa-esp32-elf/esp-12.2.0_20250801/xtensa-esp32-elf/bin/xtensa-esp32-elf-gcc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /opt/esp/tools/xtensa-esp32-elf/esp-12.2.0_20250801/xtensa-esp32-elf/bin/xtensa-esp32-elf-g++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Building ESP-IDF components for target esp32
+NOTICE: Dependencies lock doesn't exist, solving dependencies.
+NOTICE: Skipping optional dependency: espressif/esp-sr
+........................................NOTICE: Skipping optional dependency: espressif/usb_host_cdc_acm
+.NOTICE: Skipping optional dependency: espressif/usb_host_ch34x_vcp
+NOTICE: Skipping optional dependency: espressif/usb_host_cp210x_vcp
+..............NOTICE: Skipping optional dependency: espressif/cjson
+.................NOTICE: Skipping optional dependency: espressif/esp_hosted
+NOTICE: Skipping optional dependency: espressif/esp_wifi_remote
+............................NOTICE: Updating lock file at /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/dependencies.lock
+NOTICE: Processing 25 dependencies:
+NOTICE: [1/25] chmorgan/esp-libhelix-mp3 (1.0.3)
+NOTICE: [2/25] espressif/arduino-esp32 (3.0.7)
+NOTICE: [3/25] espressif/cbor (0.6.1~4)
+NOTICE: [4/25] espressif/esp-dsp (1.7.0)
+NOTICE: [5/25] espressif/esp-modbus (1.0.18)
+NOTICE: [6/25] espressif/esp-zboss-lib (1.6.4)
+NOTICE: [7/25] espressif/esp-zigbee-lib (1.6.8)
+NOTICE: [8/25] espressif/esp_daylight (1.0.1)
+NOTICE: [9/25] espressif/esp_diag_data_store (1.1.0)
+NOTICE: [10/25] espressif/esp_diagnostics (1.3.1)
+NOTICE: [11/25] espressif/esp_insights (1.3.2)
+NOTICE: [12/25] espressif/esp_modem (1.4.2)
+NOTICE: [13/25] espressif/esp_rainmaker (1.10.1)
+NOTICE: [14/25] espressif/esp_schedule (1.3.2)
+NOTICE: [15/25] espressif/esp_secure_cert_mgr (2.8.0)
+NOTICE: [16/25] espressif/jsmn (1.1.0)
+NOTICE: [17/25] espressif/json_generator (1.1.2)
+NOTICE: [18/25] espressif/json_parser (1.0.3)
+NOTICE: [19/25] espressif/libsodium (1.0.20~3)
+NOTICE: [20/25] espressif/mdns (1.9.1)
+NOTICE: [21/25] espressif/network_provisioning (1.0.5)
+NOTICE: [22/25] espressif/qrcode (0.1.0~2)
+NOTICE: [23/25] espressif/rmaker_common (1.6.0)
+NOTICE: [24/25] joltwallet/littlefs (1.20.4)
+NOTICE: [25/25] idf (5.1.7)
+CMake Error at /opt/esp/idf/tools/cmake/component.cmake:225 (message):
+  CMake Warning (dev) at build_properties.temp.cmake:8:
+
+    Syntax Warning in cmake code at column 47
+
+  
+
+    Argument not separated from preceding token by whitespace.
+
+  Call Stack (most recent call first):
+
+    /opt/esp/idf/tools/cmake/scripts/component_get_requirements.cmake:3 (include)
+
+  This warning is for project developers.  Use -Wno-dev to suppress it.
+
+
+
+  CMake Error at
+  /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/components/Adafruit_Sensor/CMakeLists.txt:1:
+
+
+    Parse error.  Expected "(", got unquoted argument with text
+    "arduino-esp32".
+
+  Call Stack (most recent call first):
+
+    /opt/esp/idf/tools/cmake/scripts/component_get_requirements.cmake:107 (include)
+    /opt/esp/idf/tools/cmake/scripts/component_get_requirements.cmake:127 (__component_get_requirements)
+
+  
+
+
+
+Call Stack (most recent call first):
+  /opt/esp/idf/tools/cmake/build.cmake:582 (__component_get_requirements)
+  /opt/esp/idf/tools/cmake/project.cmake:604 (idf_build_process)
+  CMakeLists.txt:6 (project)
+
+
+-- Configuring incomplete, errors occurred!
+cmake failed with exit code 1, output of the command is in the /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/build/log/idf_py_stderr_output_305 and /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/build/log/idf_py_stdout_output_305
+Error: Process completed with exit code 2.

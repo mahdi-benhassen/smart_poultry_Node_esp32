@@ -1,1 +1,1 @@
-                       REQUIRES arduino-esp32)
+                       REQUIRES "arduino-esp32")

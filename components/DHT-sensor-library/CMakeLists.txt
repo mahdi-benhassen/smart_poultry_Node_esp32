@@ -1,1 +1,1 @@
-                       REQUIRES arduino-esp32 Adafruit_Sensor)
+                       REQUIRES "arduino-esp32" Adafruit_Sensor)

@@ -24,7 +24,7 @@ function Install-Lib {
         # Add CMakeLists.txt if not present
         $cmakePath = Join-Path $path "CMakeLists.txt"
         if (!(Test-Path $cmakePath)) {
-            $reqString = "REQUIRES arduino-esp32"
+            $reqString = "REQUIRES `"arduino-esp32`""
             if ($Requires -ne "") {
                 $reqString += " $Requires"
             }
