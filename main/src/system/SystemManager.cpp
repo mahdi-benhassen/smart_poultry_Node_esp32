@@ -103,25 +103,35 @@ void SystemManager::sensingTask(void* pvParameters) {
             sensor->read();
             
             // Map specific sensors to DataHub
-            if (strcmp(sensor->getName(), "DHT22") == 0) {
-                DHTSensor* dht = (DHTSensor*)sensor;
-                hub->setTemperature(dht->getTemperature());
-            } 
-            else if (strcmp(sensor->getName(), "MQ137") == 0) {
-                MQ137Sensor* mq = (MQ137Sensor*)sensor;
-                hub->setAmmonia(mq->getPPM());
-            }
-            else if (strcmp(sensor->getName(), "MQ2") == 0) {
-                MQ2Sensor* mq2 = (MQ2Sensor*)sensor;
-                hub->setSmokeLevel(mq2->getSmokeLevel());
-            }
-            else if (strcmp(sensor->getName(), "BH1750") == 0) {
-                BH1750Sensor* bh = (BH1750Sensor*)sensor;
-                hub->setLux(bh->getLux());
-            }
-            else if (strcmp(sensor->getName(), "PIR") == 0) {
-                PIRSensor* pir = (PIRSensor*)sensor;
-                hub->setMotion(pir->isMotionDetected());
+            switch (sensor->getType()) {
+                case SensorType::DHT22: {
+                    DHTSensor* dht = (DHTSensor*)sensor;
+                    hub->setTemperature(dht->getTemperature());
+                    // hub->setHumidity(dht->getHumidity());
+                    break;
+                }
+                case SensorType::MQ137: {
+                    MQ137Sensor* mq = (MQ137Sensor*)sensor;
+                    hub->setAmmonia(mq->getPPM());
+                    break;
+                }
+                case SensorType::MQ2: {
+                    MQ2Sensor* mq2 = (MQ2Sensor*)sensor;
+                    hub->setSmokeLevel(mq2->getSmokeLevel());
+                    break;
+                }
+                case SensorType::BH1750: {
+                    BH1750Sensor* bh = (BH1750Sensor*)sensor;
+                    hub->setLux(bh->getLux());
+                    break;
+                }
+                case SensorType::PIR: {
+                    PIRSensor* pir = (PIRSensor*)sensor;
+                    hub->setMotion(pir->isMotionDetected());
+                    break;
+                }
+                default:
+                    break;
             }
         }
         vTaskDelay(pdMS_TO_TICKS(2000)); // Poll every 2 seconds

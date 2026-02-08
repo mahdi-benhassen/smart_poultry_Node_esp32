@@ -15,6 +15,7 @@ public:
     void read() override;
     std::string report() override;
     const char* getName() override;
+    SensorType getType() override { return SensorType::BH1750; }
     float getLux() { return lux; }
 };
 
