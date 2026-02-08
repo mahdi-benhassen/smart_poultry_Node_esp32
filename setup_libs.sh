@@ -26,7 +26,7 @@ install_lib() {
         # Add CMakeLists.txt if not present
         CMAKE_PATH="$PATH_DIR/CMakeLists.txt"
         if [ ! -f "$CMAKE_PATH" ]; then
-            REQ_STRING="REQUIRES arduino"
+            REQ_STRING="REQUIRES arduino-esp32"
             if [ -n "$REQUIRES" ]; then
                 REQ_STRING="$REQ_STRING $REQUIRES"
             fi

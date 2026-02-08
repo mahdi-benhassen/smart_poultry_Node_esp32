@@ -13,7 +13,7 @@ idf_component_register(
          "src/system/Logger.cpp"
          "src/system/SystemManager.cpp"
     INCLUDE_DIRS "include"
-    REQUIRES arduino
+    REQUIRES "arduino-esp32"
              Adafruit_Sensor
              DHT-sensor-library
              BH1750
