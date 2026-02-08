@@ -19,5 +19,6 @@ jobs:
 
       - name: Build Firmware
         run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           . $IDF_PATH/export.sh
           idf.py build
