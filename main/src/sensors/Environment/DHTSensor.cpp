@@ -3,6 +3,8 @@
 #include <sstream>
 #include "esp_timer.h"
 #include "rom/ets_sys.h"
+#include "freertos/FreeRTOS.h" // Added for vTaskDelay
+#include "freertos/task.h"     // Added for vTaskDelay
 
 static const char *TAG = "DHTSensor";
 
@@ -81,10 +83,6 @@ std::string DHTSensor::report() {
     std::stringstream ss;
     ss << "{\"temp\":" << lastTemp << ",\"hum\":" << lastHum << "}";
     return ss.str();
-}
-
-const char* DHTSensor::getName() {
-    return "DHT22";
 }
 
 const char* DHTSensor::getName() {
