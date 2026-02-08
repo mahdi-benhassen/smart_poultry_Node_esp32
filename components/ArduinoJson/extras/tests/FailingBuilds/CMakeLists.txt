@@ -1,0 +1,1 @@
+add_failing_build(deserialize_object.cpp)
