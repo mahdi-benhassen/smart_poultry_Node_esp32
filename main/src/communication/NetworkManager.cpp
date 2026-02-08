@@ -8,8 +8,8 @@
 
 static const char *TAG = "NetworkManager";
 
-static void wifi_event_handler(void* arg, esp_event_base_t event_base,
-                                int32_t event_id, void* event_data); // Forward declaration
+void wifi_event_handler(void* arg, esp_event_base_t event_base,
+                        int32_t event_id, void* event_data); // Forward declaration
 
 static void smartconfig_event_handler(void* arg, esp_event_base_t event_base,
                                       int32_t event_id, void* event_data)
@@ -55,8 +55,8 @@ static void smartconfig_event_handler(void* arg, esp_event_base_t event_base,
     }
 }
 
-static void wifi_event_handler(void* arg, esp_event_base_t event_base,
-                                int32_t event_id, void* event_data)
+void wifi_event_handler(void* arg, esp_event_base_t event_base,
+                        int32_t event_id, void* event_data)
 {
     if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
         // Don't connect immediately if we want to check config first, 
