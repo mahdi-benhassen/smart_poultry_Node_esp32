@@ -1,5 +1,5 @@
 Run git config --global --add safe.directory "$GITHUB_WORKSPACE"
-/__w/_temp/e2202f32-14c4-4556-839e-b9e6c93cb6be.sh: 22: /opt/esp/idf/export.sh: [[: not found
+/__w/_temp/8b18576f-e8ae-4bac-a8b3-53c00db05abb.sh: 22: /opt/esp/idf/export.sh: [[: not found
 Detecting the Python interpreter
 Checking "python3" ...
 Python 3.8.10
@@ -24,6 +24,8 @@ Running cmake in directory /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp3
 Executing "cmake -G Ninja -DPYTHON_DEPS_CHECKED=1 -DPYTHON=/opt/esp/python_env/idf5.1_py3.8_env/bin/python -DESP_PLATFORM=1 -DCCACHE_ENABLE=1 /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32"...
 -- IDF_TARGET not set, using default target: esp32
 -- Found Git: /usr/bin/git (found version "2.25.1")
+-- Component directory /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/components/Adafruit_Sensor does not contain a CMakeLists.txt file. No component will be added
+-- Component directory /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/components/Adafruit_Sensor does not contain a CMakeLists.txt file. No component will be added
 -- ccache will be used for faster recompilation
 -- The C compiler identification is GNU 12.2.0
 -- The CXX compiler identification is GNU 12.2.0
@@ -41,89 +43,25 @@ Executing "cmake -G Ninja -DPYTHON_DEPS_CHECKED=1 -DPYTHON=/opt/esp/python_env/i
 -- Detecting CXX compile features - done
 -- Building ESP-IDF components for target esp32
 NOTICE: Dependencies lock doesn't exist, solving dependencies.
-NOTICE: Skipping optional dependency: espressif/esp-sr
-........................................NOTICE: Skipping optional dependency: espressif/usb_host_cdc_acm
-.NOTICE: Skipping optional dependency: espressif/usb_host_ch34x_vcp
-NOTICE: Skipping optional dependency: espressif/usb_host_cp210x_vcp
-..............NOTICE: Skipping optional dependency: espressif/cjson
-.................NOTICE: Skipping optional dependency: espressif/esp_hosted
-NOTICE: Skipping optional dependency: espressif/esp_wifi_remote
-............................NOTICE: Updating lock file at /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/dependencies.lock
-NOTICE: Processing 25 dependencies:
-NOTICE: [1/25] chmorgan/esp-libhelix-mp3 (1.0.3)
-NOTICE: [2/25] espressif/arduino-esp32 (3.0.7)
-NOTICE: [3/25] espressif/cbor (0.6.1~4)
-NOTICE: [4/25] espressif/esp-dsp (1.7.0)
-NOTICE: [5/25] espressif/esp-modbus (1.0.18)
-NOTICE: [6/25] espressif/esp-zboss-lib (1.6.4)
-NOTICE: [7/25] espressif/esp-zigbee-lib (1.6.8)
-NOTICE: [8/25] espressif/esp_daylight (1.0.1)
-NOTICE: [9/25] espressif/esp_diag_data_store (1.1.0)
-NOTICE: [10/25] espressif/esp_diagnostics (1.3.1)
-NOTICE: [11/25] espressif/esp_insights (1.3.2)
-NOTICE: [12/25] espressif/esp_modem (1.4.2)
-NOTICE: [13/25] espressif/esp_rainmaker (1.10.1)
-NOTICE: [14/25] espressif/esp_schedule (1.3.2)
-NOTICE: [15/25] espressif/esp_secure_cert_mgr (2.8.0)
-NOTICE: [16/25] espressif/jsmn (1.1.0)
-NOTICE: [17/25] espressif/json_generator (1.1.2)
-NOTICE: [18/25] espressif/json_parser (1.0.3)
-NOTICE: [19/25] espressif/libsodium (1.0.20~3)
-NOTICE: [20/25] espressif/mdns (1.9.1)
-NOTICE: [21/25] espressif/network_provisioning (1.0.5)
-NOTICE: [22/25] espressif/qrcode (0.1.0~2)
-NOTICE: [23/25] espressif/rmaker_common (1.6.0)
-NOTICE: [24/25] joltwallet/littlefs (1.20.4)
-NOTICE: [25/25] idf (5.1.7)
+....NOTICE: Updating lock file at /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/dependencies.lock
+NOTICE: Processing 3 dependencies:
+NOTICE: [1/3] espressif/esp-modbus (1.0.18)
+NOTICE: [2/3] espressif/mdns (1.9.1)
+NOTICE: [3/3] idf (5.1.7)
 -- DEBUG: Use esp-modbus component folder: /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/managed_components/espressif__esp-modbus.
-NOTICE: Skipping optional dependency: espressif/esp-sr
--- Project sdkconfig file /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/sdkconfig
-Loading defaults file /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/sdkconfig.defaults...
-Compiler supported targets: xtensa-esp32-elf
-
--- Looking for sys/types.h
--- Looking for sys/types.h - found
--- Looking for stdint.h
--- Looking for stdint.h - found
--- Looking for stddef.h
--- Looking for stddef.h - found
--- Check size of time_t
--- Check size of time_t - done
--- Found Python3: /opt/esp/python_env/idf5.1_py3.8_env/bin/python (found version "3.8.10") found components: Interpreter
--- Performing Test CMAKE_HAVE_LIBC_PTHREAD
--- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Failed
--- Check if compiler accepts -pthread
--- Check if compiler accepts -pthread - no
--- Looking for pthread_create in pthreads
--- Looking for pthread_create in pthreads - not found
--- Looking for pthread_create in pthread
--- Looking for pthread_create in pthread - not found
--- Could NOT find Threads (missing: Threads_FOUND) 
--- Performing Test C_COMPILER_SUPPORTS_WFORMAT_SIGNEDNESS
--- Performing Test C_COMPILER_SUPPORTS_WFORMAT_SIGNEDNESS - Success
--- USING O3
--- App "poultry_system" version: d72bbb6
--- Adding linker script /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/build/esp-idf/esp_system/ld/memory.ld
--- Adding linker script /opt/esp/idf/components/esp_system/ld/esp32/sections.ld.in
--- Adding linker script /opt/esp/idf/components/esp_rom/esp32/ld/esp32.rom.ld
--- Adding linker script /opt/esp/idf/components/esp_rom/esp32/ld/esp32.rom.api.ld
--- Adding linker script /opt/esp/idf/components/esp_rom/esp32/ld/esp32.rom.libgcc.ld
--- Adding linker script /opt/esp/idf/components/esp_rom/esp32/ld/esp32.rom.newlib-data.ld
--- Adding linker script /opt/esp/idf/components/esp_rom/esp32/ld/esp32.rom.syscalls.ld
--- Adding linker script /opt/esp/idf/components/esp_rom/esp32/ld/esp32.rom.newlib-funcs.ld
--- Adding linker script /opt/esp/idf/components/soc/esp32/ld/esp32.peripherals.ld
--- DEBUG: Use esp-modbus component folder: /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/managed_components/espressif__esp-modbus.
-ESP Insights Project commit: d72bbb6
-ESP RainMaker Project commit: d72bbb6
-CMake Error at /opt/esp/idf/tools/cmake/component.cmake:314 (message):
-  Include directory
-  '/__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/components/Adafruit_Sensor/src'
-  is not a directory.
+CMake Error at /opt/esp/idf/tools/cmake/build.cmake:266 (message):
+  Failed to resolve component 'esp_log'.
 Call Stack (most recent call first):
-  /opt/esp/idf/tools/cmake/component.cmake:482 (__component_add_include_dirs)
-  components/Adafruit_Sensor/CMakeLists.txt:1 (idf_component_register)
+  /opt/esp/idf/tools/cmake/build.cmake:302 (__build_resolve_and_add_req)
+  /opt/esp/idf/tools/cmake/build.cmake:603 (__build_expand_requirements)
+  /opt/esp/idf/tools/cmake/project.cmake:604 (idf_build_process)
+  CMakeLists.txt:6 (project)
 
 
 -- Configuring incomplete, errors occurred!
-cmake failed with exit code 1, output of the command is in the /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/build/log/idf_py_stderr_output_305 and /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/build/log/idf_py_stdout_output_305
+HINT: The component esp_log could not be found. This could be because: component name was misspelled, the component was not added to the build, the component has been moved to the IDF component manager or has been removed and refactored into some other component.
+Please look out for component in 'https://components.espressif.com' and add using 'idf.py add-dependency' command.
+Refer to the migration guide for more details about moved components.
+Refer to the build-system guide for more details about how components are found and included in the build.
+cmake failed with exit code 1, output of the command is in the /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/build/log/idf_py_stderr_output_302 and /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/build/log/idf_py_stdout_output_302
 Error: Process completed with exit code 2.

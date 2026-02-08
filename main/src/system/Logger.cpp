@@ -1,52 +1,26 @@
 #include "system/Logger.h"
+#include "esp_log.h"
 #include <stdarg.h>
 
-SemaphoreHandle_t Logger::serialMutex = NULL;
-
 void Logger::init(long baudRate) {
-    Serial.begin(baudRate);
-    if (serialMutex == NULL) {
-        serialMutex = xSemaphoreCreateMutex();
-    }
+    // No-op for ESP-IDF (initialized by default)
 }
 
 void Logger::log(const char* level, const char* msg) {
-    if (serialMutex != NULL) {
-        if (xSemaphoreTake(serialMutex, portMAX_DELAY) == pdTRUE) {
-            Serial.print("[");
-            Serial.print(millis());
-            Serial.print("] [");
-            Serial.print(level);
-            Serial.print("] ");
-            Serial.println(msg);
-            xSemaphoreGive(serialMutex);
-        }
-    }
+    ESP_LOGI(level, "%s", msg);
 }
 
-void Logger::log(const char* level, String msg) {
+void Logger::log(const char* level, std::string msg) {
     log(level, msg.c_str());
 }
 
 void Logger::logf(const char* level, const char* format, ...) {
-    if (serialMutex != NULL) {
-        if (xSemaphoreTake(serialMutex, portMAX_DELAY) == pdTRUE) {
-            Serial.print("[");
-            Serial.print(millis());
-            Serial.print("] [");
-            Serial.print(level);
-            Serial.print("] ");
-            
-            va_list args;
-            va_start(args, format);
-            vfprintf(stdout, format, args); // Standard printf redirection might not work on all cores, usually Serial.printf
-            // Let's use a buffer for safety on embedded
-            char buffer[256];
-            vsnprintf(buffer, sizeof(buffer), format, args);
-            Serial.println(buffer);
-            va_end(args);
-            
-            xSemaphoreGive(serialMutex);
-        }
-    }
+    va_list args;
+    va_start(args, format);
+    // ESP_LOGI uses a macro, so we can't easily pass va_list to it directly in a generic way 
+    // without using esp_log_write or buffering.
+    char buffer[256];
+    vsnprintf(buffer, sizeof(buffer), format, args);
+    ESP_LOGI(level, "%s", buffer);
+    va_end(args);
 }

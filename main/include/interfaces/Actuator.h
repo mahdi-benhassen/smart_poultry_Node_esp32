@@ -1,8 +1,6 @@
 #ifndef ACTUATOR_INTERFACE_H
 #define ACTUATOR_INTERFACE_H
 
-#include <Arduino.h>
-
 class Actuator {
 public:
     virtual ~Actuator() {}

@@ -1,180 +1,87 @@
 #include "communication/NetworkManager.h"
-#include "security/SecurityManager.h"
-#include "system/Logger.h"
+#include "esp_log.h"
+#include "esp_wifi.h"
+#include "nvs_flash.h"
 
-// Flag for saving data
-bool shouldSaveConfig = false;
+static const char *TAG = "NetworkManager";
 
-// Callback notifying us of the need to save config
-void saveConfigCallback () {
-  Logger::log("NET", "Should save config");
-  shouldSaveConfig = true;
+static void wifi_event_handler(void* arg, esp_event_base_t event_base,
+                                int32_t event_id, void* event_data)
+{
+    if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
+        esp_wifi_connect();
+    } else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
+        esp_wifi_connect();
+        ESP_LOGI(TAG, "retry to connect to the AP");
+    } else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
+        ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
+        ESP_LOGI(TAG, "got ip:" IPSTR, IP2STR(&event->ip_info.ip));
+    }
 }
 
-NetworkManager::NetworkManager() : client(espClient) {
-    // Initial default
-    strcpy(mqtt_server, MQTT_SERVER);
-    mqtt_port = MQTT_PORT;
-    mqttMutex = xSemaphoreCreateMutex();
-}
+NetworkManager::NetworkManager() : mqtt_client(NULL), connected(false) {}
 
-void NetworkManager::setupWiFi() {
-    Logger::log("NET", "Starting WiFiManager...");
+void NetworkManager::init() {
+    ESP_LOGI(TAG, "Initializing Network...");
 
-    // Load custom values from SecurityManager (Preferences)
-    String saved_server = SecurityManager::getMQTTServer();
-    int saved_port = SecurityManager::getMQTTPort();
+    ESP_ERROR_CHECK(esp_netif_init());
+    ESP_ERROR_CHECK(esp_event_loop_create_default());
+    esp_netif_create_default_wifi_sta();
+
+    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+    ESP_ERROR_CHECK(esp_wifi_init(&cfg));
+
+    esp_event_handler_instance_t instance_any_id;
+    esp_event_handler_instance_t instance_got_ip;
+    ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT,
+                                                        ESP_EVENT_ANY_ID,
+                                                        &wifi_event_handler,
+                                                        NULL,
+                                                        &instance_any_id));
+    ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT,
+                                                        IP_EVENT_STA_GOT_IP,
+                                                        &wifi_event_handler,
+                                                        NULL,
+                                                        &instance_got_ip));
+
+    wifi_config_t wifi_config = {
+        .sta = {
+            .ssid = "SSID_PLACEHOLDER",
+            .password = "PASSWORD_PLACEHOLDER",
+            .threshold = { .authmode = WIFI_AUTH_WPA2_PSK },
+        },
+    };
     
-    strcpy(mqtt_server, saved_server.c_str());
-    mqtt_port = saved_port;
-
-    // The extra parameters to be configured (can be either global or just in the setup)
-    // After connecting, parameter.getValue() will get you the configured value
-    // id/name placeholder/prompt default length
-    char port_str[6];
-    sprintf(port_str, "%d", mqtt_port);
-
-    WiFiManagerParameter custom_mqtt_server("server", "mqtt server", mqtt_server, 40);
-    WiFiManagerParameter custom_mqtt_port("port", "mqtt port", port_str, 6);
-
-    wifiManager.setSaveConfigCallback(saveConfigCallback);
-    wifiManager.addParameter(&custom_mqtt_server);
-    wifiManager.addParameter(&custom_mqtt_port);
-
-    // Fetches ssid and pass and tries to connect
-    // If it does not connect it starts an access point with the specified name
-    // and goes into a blocking loop awaiting configuration
-    if (!wifiManager.autoConnect("Poultry_Node_AP", "password")) {
-        Logger::log("NET", "failed to connect and hit timeout");
-        delay(3000);
-        //reset and try again, or maybe put it to deep sleep
-        ESP.restart();
-        delay(5000);
-    }
-
-    // if you get here you have connected to the WiFi
-    Logger::log("NET", "connected...yeey :)");
-    Logger::logf("NET", "local ip: %s", WiFi.localIP().toString().c_str());
-
-    // read updated parameters
-    strcpy(mqtt_server, custom_mqtt_server.getValue());
-    mqtt_port = atoi(custom_mqtt_port.getValue());
-
-    // save the custom parameters to FS
-    if (shouldSaveConfig) {
-        Logger::log("NET", "Saving config");
-        SecurityManager::saveMQTT(mqtt_server, mqtt_port);
-    }
-
-    // Configure TLS
-    #ifdef ENABLE_TLS
-        espClient.setInsecure(); // Skip verification for demo/testing
+    // Check Config.h macros if available
+    #ifdef WIFI_SSID
+    snprintf((char*)wifi_config.sta.ssid, 32, "%s", WIFI_SSID);
     #endif
-}
+    #ifdef WIFI_PASSWORD
+    snprintf((char*)wifi_config.sta.password, 64, "%s", WIFI_PASSWORD);
+    #endif
 
-void NetworkManager::setupOTA() {
-    ArduinoOTA.setHostname("poultry-node");
-    
-    ArduinoOTA.onStart([]() {
-        String type;
-        if (ArduinoOTA.getCommand() == U_FLASH) type = "sketch";
-        else type = "filesystem";
-        Logger::log("OTA", "Start updating " + type);
-    });
-    ArduinoOTA.onEnd([]() {
-        Logger::log("OTA", "\nEnd");
-    });
-    ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-        // Serial.printf("Progress: %u%%\r", (progress / (total / 100))); // Reduce spam
-    });
-    ArduinoOTA.onError([](ota_error_t error) {
-        Logger::logf("OTA", "Error[%u]", error);
-        if (error == OTA_AUTH_ERROR) Logger::log("OTA", "Auth Failed");
-        else if (error == OTA_BEGIN_ERROR) Logger::log("OTA", "Begin Failed");
-        else if (error == OTA_CONNECT_ERROR) Logger::log("OTA", "Connect Failed");
-        else if (error == OTA_RECEIVE_ERROR) Logger::log("OTA", "Receive Failed");
-        else if (error == OTA_END_ERROR) Logger::log("OTA", "End Failed");
-    });
-    ArduinoOTA.begin();
-    Logger::log("OTA", "Ready");
-}
+    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
+    ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
+    ESP_ERROR_CHECK(esp_wifi_start());
 
-void NetworkManager::setServer(const char* server, int port) {
-    if (server != mqtt_server) {
-        strncpy(mqtt_server, server, 39);
-        mqtt_server[39] = '\0';
-    }
-    mqtt_port = port;
-    if (xSemaphoreTake(mqttMutex, portMAX_DELAY)) {
-        client.setServer(mqtt_server, mqtt_port);
-        xSemaphoreGive(mqttMutex);
-    }
-}
+    ESP_LOGI(TAG, "wifi_init_sta finished.");
 
-void NetworkManager::connectMQTT() {
-    // Only access client if we have the mutex? 
-    // connectMQTT is called from loop(), which should hold mutex or be the only one.
-    // However, loop() calls connectMQTT().
-    // Let's rely on the caller or lock inside loop.
-    // Wait, client.connect() is blocking.
-    // If we lock inside loop(), other tasks waiting to publish will block. That's fine.
-    
-    // For setServer:
-    if (xSemaphoreTake(mqttMutex, portMAX_DELAY)) {
-         client.setServer(mqtt_server, mqtt_port);
-         xSemaphoreGive(mqttMutex);
-    }
-
-    // Check connection without lock first to avoid constant locking if connected?
-    // client.connected() is fast.
-    
-    if (!client.connected()) {
-        if (xSemaphoreTake(mqttMutex, portMAX_DELAY)) {
-             if (!client.connected()) { // Double check
-                Logger::logf("MQTT", "Attempting connection to %s:%d", mqtt_server, mqtt_port);
-                String clientId = "ESP32Client-";
-                clientId += String(random(0xffff), HEX);
-                
-                if (client.connect(clientId.c_str())) {
-                    Logger::log("MQTT", "connected");
-                } else {
-                    Logger::logf("MQTT", "failed, rc=%d try again in 5s", client.state());
-                    // delay(5000); // Don't delay inside lock!
-                }
-             }
-             xSemaphoreGive(mqttMutex);
-        }
-        if (!client.connected()) delay(5000); // Delay outside lock
-    }
-}
-
-void NetworkManager::loop() {
-    if (WiFi.status() != WL_CONNECTED) {
-        // Serial.println("WiFi lost!"); // Handled by reconnect logic eventually
-    }
-
-    // Handle OTA
-    ArduinoOTA.handle();
-
-    if (!client.connected()) {
-        connectMQTT();
-    }
-    
-    if (xSemaphoreTake(mqttMutex, portMAX_DELAY)) {
-        client.loop();
-        xSemaphoreGive(mqttMutex);
-    }
+    // MQTT Init (Placeholder)
+    /*
+    esp_mqtt_client_config_t mqtt_cfg = {
+        .broker = { .address = { .uri = "mqtt://broker.hivemq.com" } },
+    };
+    mqtt_client = esp_mqtt_client_init(&mqtt_cfg);
+    esp_mqtt_client_start(mqtt_client);
+    */
 }
 
 void NetworkManager::publish(const char* topic, const char* payload) {
-    if (xSemaphoreTake(mqttMutex, portMAX_DELAY)) {
-        if (client.connected()) {
-            client.publish(topic, payload);
-        }
-        xSemaphoreGive(mqttMutex);
+    if (mqtt_client) {
+        esp_mqtt_client_publish(mqtt_client, topic, payload, 0, 1, 0);
     }
 }
 
 bool NetworkManager::isConnected() {
-    return client.connected();
+    return connected;
 }
