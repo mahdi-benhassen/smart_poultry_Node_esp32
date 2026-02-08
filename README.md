@@ -1,82 +1,28 @@
-# Smart Poultry Node (ESP32)
+# Smart Poultry System (ESP32 IoT)
 
-A robust, modular IoT firmware for poultry farm monitoring and automation, built for the **ESP32** using the **ESP-IDF** build system with **Arduino Components**.
+[![Build ESP32 Firmware](https://github.com/mahdi-benhassen/smart_poultry_Node_esp32/actions/workflows/idf_build.yml/badge.svg)](https://github.com/mahdi-benhassen/smart_poultry_Node_esp32/actions/workflows/idf_build.yml)
+
+An advanced IoT firmware for poultry farm automation, built with ESP-IDF and C++.
+
+## Documentation
+Full documentation is available in the `docs/` folder:
+*   [**Architecture**](docs/ARCHITECTURE.md): System design and software layers.
+*   [**Developer Guide**](docs/DEVELOPER_GUIDE.md): Setup, building, and coding standards.
+*   [**Deployment Guide**](docs/DEPLOYMENT.md): Flashing, Provisioning, and OTA.
+*   [**API Reference**](docs/API_REFERENCE.md): MQTT topics and payloads.
+*   [**Hardware Reference**](docs/HARDWARE.md): Pinout and wiring.
 
 ## Features
+*   **Real-time Monitoring**: Temperature, Humidity, Ammonia, Feed Level.
+*   **Automation**: Fan/Heater control logic.
+*   **Connectivity**: WiFi (SmartConfig), MQTT, OTA Updates.
+*   **Resilience**: Offline data buffering and watchdog protection.
 
-*   **Modular Architecture**: Separate managers for Sensors, Actuators, Network, Security, and System logic.
-*   **Sensor Support**:
-    *   **DHT22**: Temperature & Humidity.
-    *   **MQ-135**: Air Quality (Ammonia).
-    *   **BH1750**: Light Intensity.
-    *   **HC-SR04**: Ultrasonic Feed Level.
-    *   **Water Level**: Resistive/Float monitoring.
-*   **Connectivity**:
-    *   **Wi-Fi**: Auto-provisioning via Captive Portal (`WiFiManager`).
-    *   **MQTT**: Secure data publishing (TLS supported).
-    *   **LoRa**: Long-range node-to-node communication.
-    *   **OTA**: Over-the-Air firmware updates.
-*   **Reliability**:
-    *   **FreeRTOS**: Multitasking (Sensors, Network, LoRa).
-    *   **Thread Safety**: Mutex-protected resources (Logging, MQTT, SPI).
-    *   **Watchdog**: Hardware WDT monitoring for all tasks.
-
-## Project Structure
-
-This project uses the standard ESP-IDF component structure:
-
-```text
-├── main/
-│   ├── src/                # Application source code
-│   ├── include/            # Application headers
-│   ├── CMakeLists.txt      # Main component build config
-│   └── idf_component.yml   # Dependency manager (fetches Arduino Core)
-├── components/             # 3rd-party Arduino libraries (vendored)
-├── CMakeLists.txt          # Project build config
-├── sdkconfig.defaults      # Default SDK configuration
-└── setup_libs.ps1          # Helper to fetch libraries
-```
-
-## Build Instructions
-
-### Prerequisites
-*   [ESP-IDF v5.1+](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/) installed and exported to your PATH.
-
-### 1. Clone the Repository
-```bash
-git clone https://github.com/mahdi-benhassen/smart_poultry_Node_esp32.git
-cd smart_poultry_Node_esp32
-```
-
-### 2. Configure
-```bash
-idf.py set-target esp32
-idf.py menuconfig
-```
-*   Ensure `Component config -> Arduino Configuration -> Autostart Arduino setup and loop` is enabled.
-
-### 3. Build & Flash
-```bash
-idf.py build
-idf.py -p COM3 flash monitor
-```
-*(Replace `COM3` with your device's serial port)*
-
-## Configuration
-Edit `main/include/Config.h` to enable/disable modules and set pin mappings:
-
-```cpp
-#define ENABLE_DHT_SENSOR       1
-#define ENABLE_MQ135_SENSOR     1
-#define ENABLE_LORA             1
-// ...
-```
-
-## Provisioning
-1.  On first boot, the device creates a Wi-Fi Access Point named **`Poultry_Node_AP`**.
-2.  Connect to it (Password: `password` or open).
-3.  A captive portal will open (or go to `192.168.4.1`).
-4.  Enter your Wi-Fi credentials and MQTT Broker details.
+## Quick Start
+1.  **Clone**: `git clone ...`
+2.  **Build**: `idf.py build`
+3.  **Flash**: `idf.py flash monitor`
+4.  **Provision**: Use "ESPTouch" app to set WiFi.
 
 ## License
 MIT
