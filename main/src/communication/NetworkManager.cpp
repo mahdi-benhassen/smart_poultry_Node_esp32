@@ -2,24 +2,88 @@
 #include "esp_log.h"
 #include "esp_wifi.h"
 #include "nvs_flash.h"
+#include "esp_smartconfig.h"
 
 static const char *TAG = "NetworkManager";
+
+static void smartconfig_event_handler(void* arg, esp_event_base_t event_base,
+                                      int32_t event_id, void* event_data)
+{
+    if (event_base == SC_EVENT && event_id == SC_EVENT_SCAN_DONE) {
+        ESP_LOGI(TAG, "Scan done");
+    } else if (event_base == SC_EVENT && event_id == SC_EVENT_FOUND_CHANNEL) {
+        ESP_LOGI(TAG, "Found channel");
+    } else if (event_base == SC_EVENT && event_id == SC_EVENT_GOT_SSID_PSWD) {
+        ESP_LOGI(TAG, "Got SSID and password");
+        smartconfig_event_got_ssid_pswd_t *evt = (smartconfig_event_got_ssid_pswd_t *)event_data;
+        
+        wifi_config_t wifi_config;
+        uint8_t ssid[33] = { 0 };
+        uint8_t password[65] = { 0 };
+        uint8_t rvd_data[33] = { 0 };
+
+        bzero(&wifi_config, sizeof(wifi_config_t));
+        memcpy(wifi_config.sta.ssid, evt->ssid, sizeof(wifi_config.sta.ssid));
+        memcpy(wifi_config.sta.password, evt->password, sizeof(wifi_config.sta.password));
+        wifi_config.sta.bssid_set = evt->bssid_set;
+        if (wifi_config.sta.bssid_set == true) {
+            memcpy(wifi_config.sta.bssid, evt->bssid, sizeof(wifi_config.sta.bssid));
+        }
+
+        memcpy(ssid, evt->ssid, sizeof(evt->ssid));
+        memcpy(password, evt->password, sizeof(evt->password));
+        ESP_LOGI(TAG, "SSID:%s", ssid);
+        ESP_LOGI(TAG, "PASSWORD:%s", password);
+        if (evt->type == SC_TYPE_ESPTOUCH_V2) {
+            ESP_ERROR_CHECK( esp_smartconfig_get_rvd_data(rvd_data, sizeof(rvd_data)) );
+            ESP_LOGI(TAG, "RVD_DATA:%s", rvd_data);
+        }
+
+        ESP_ERROR_CHECK( esp_wifi_disconnect() );
+        ESP_ERROR_CHECK( esp_wifi_set_config(WIFI_IF_STA, &wifi_config) );
+        esp_wifi_connect();
+    } else if (event_base == SC_EVENT && event_id == SC_EVENT_SEND_ACK_DONE) {
+        xEventGroupSetBits((EventGroupHandle_t)arg, BIT0); // Signal done if using event groups
+        // Or just stop it here
+        esp_smartconfig_stop();
+        ESP_LOGI(TAG, "SmartConfig Complete");
+    }
+}
 
 static void wifi_event_handler(void* arg, esp_event_base_t event_base,
                                 int32_t event_id, void* event_data)
 {
     if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
+        // Don't connect immediately if we want to check config first, 
+        // but typically we try to connect. If fails, we might start SmartConfig.
+        // For now, let's try connect.
         esp_wifi_connect();
     } else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
-        esp_wifi_connect();
-        ESP_LOGI(TAG, "retry to connect to the AP");
+        NetworkManager* nm = (NetworkManager*)arg;
+        if (nm && !nm->isProvisioning()) {
+            esp_wifi_connect();
+            ESP_LOGI(TAG, "retry to connect to the AP");
+        } else {
+             ESP_LOGI(TAG, "Disconnected (Provisioning Mode or stopped)");
+        }
     } else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
         ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
         ESP_LOGI(TAG, "got ip:" IPSTR, IP2STR(&event->ip_info.ip));
     }
 }
 
-NetworkManager::NetworkManager() : mqtt_client(NULL), connected(false) {}
+NetworkManager::NetworkManager() : mqtt_client(NULL), connected(false), provisioning(false) {}
+
+void NetworkManager::startSmartConfig() {
+    provisioning = true;
+    ESP_LOGI(TAG, "Starting SmartConfig...");
+    ESP_ERROR_CHECK( esp_smartconfig_set_type(SC_TYPE_ESPTOUCH) );
+    smartconfig_start_config_t cfg = SMARTCONFIG_START_CONFIG_DEFAULT();
+    ESP_ERROR_CHECK( esp_smartconfig_start(&cfg) );
+    
+    // Register SmartConfig Handler
+    ESP_ERROR_CHECK( esp_event_handler_register(SC_EVENT, ESP_EVENT_ANY_ID, &smartconfig_event_handler, NULL) );
+}
 
 void NetworkManager::init() {
     ESP_LOGI(TAG, "Initializing Network...");
@@ -39,46 +103,55 @@ void NetworkManager::init() {
     esp_event_handler_instance_t instance_any_id;
     esp_event_handler_instance_t instance_got_ip;
     
+    // Pass 'this' as arg to handle state in callbacks if needed
     err = esp_event_handler_instance_register(WIFI_EVENT,
                                               ESP_EVENT_ANY_ID,
                                               &wifi_event_handler,
-                                              NULL,
+                                              this,
                                               &instance_any_id);
     if (err != ESP_OK) ESP_LOGW(TAG, "Failed to register WiFi handler");
 
     err = esp_event_handler_instance_register(IP_EVENT,
                                               IP_EVENT_STA_GOT_IP,
                                               &wifi_event_handler,
-                                              NULL,
+                                              this,
                                               &instance_got_ip);
     if (err != ESP_OK) ESP_LOGW(TAG, "Failed to register IP handler");
-
-    wifi_config_t wifi_config;
-    memset(&wifi_config, 0, sizeof(wifi_config));
-    
-    // Check Config.h macros if available
-    #ifdef WIFI_SSID
-    snprintf((char*)wifi_config.sta.ssid, 32, "%s", WIFI_SSID);
-    #else
-    snprintf((char*)wifi_config.sta.ssid, 32, "SSID_PLACEHOLDER");
-    #endif
-
-    #ifdef WIFI_PASSWORD
-    snprintf((char*)wifi_config.sta.password, 64, "%s", WIFI_PASSWORD);
-    #else
-    snprintf((char*)wifi_config.sta.password, 64, "PASSWORD_PLACEHOLDER");
-    #endif
-    
-    wifi_config.sta.threshold.authmode = WIFI_AUTH_WPA2_PSK;
 
     err = esp_wifi_set_mode(WIFI_MODE_STA);
     if (err != ESP_OK) { ESP_LOGE(TAG, "Failed to set mode: %s", esp_err_to_name(err)); return; }
 
-    err = esp_wifi_set_config(WIFI_IF_STA, &wifi_config);
-    if (err != ESP_OK) { ESP_LOGE(TAG, "Failed to set config: %s", esp_err_to_name(err)); return; }
+    // Check if we have saved config
+    wifi_config_t wifi_config;
+    err = esp_wifi_get_config(WIFI_IF_STA, &wifi_config);
+    
+    bool has_config = (strlen((char*)wifi_config.sta.ssid) > 0);
+    
+    // If we have compile-time overrides, use them (Dev Mode)
+    #ifdef WIFI_SSID
+    snprintf((char*)wifi_config.sta.ssid, 32, "%s", WIFI_SSID);
+    #endif
+    #ifdef WIFI_PASSWORD
+    snprintf((char*)wifi_config.sta.password, 64, "%s", WIFI_PASSWORD);
+    #endif
+    
+    // Check again after macro override
+    if (strlen((char*)wifi_config.sta.ssid) > 0) {
+        ESP_LOGI(TAG, "Found saved/configured SSID: %s", wifi_config.sta.ssid);
+        has_config = true;
+        ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
+    }
 
     err = esp_wifi_start();
     if (err != ESP_OK) { ESP_LOGE(TAG, "Failed to start wifi: %s", esp_err_to_name(err)); return; }
+
+    if (!has_config) {
+        ESP_LOGI(TAG, "No WiFi config found. Starting SmartConfig...");
+        startSmartConfig();
+    } else {
+        ESP_LOGI(TAG, "Connecting to WiFi...");
+        // wifi_event_handler will trigger connect on STA_START
+    }
 
     ESP_LOGI(TAG, "wifi_init_sta finished.");
 

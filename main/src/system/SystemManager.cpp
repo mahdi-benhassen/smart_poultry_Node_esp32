@@ -87,10 +87,11 @@ void SystemManager::init() {
 void SystemManager::startTasks() {
     ESP_LOGI(TAG, "Starting Application Layer Tasks...");
 
-    xTaskCreate(sensingTask, "SensingTask", 4096, this, 5, &sensingTaskHandle);
-    xTaskCreate(logicTask,   "LogicTask",   4096, this, 5, &logicTaskHandle);
-    xTaskCreate(commsTask,   "CommsTask",   4096, this, 4, &commsTaskHandle);
-    xTaskCreate(safetyTask,  "SafetyTask",  2048, this, 6, &safetyTaskHandle); // High priority
+    // Stack Sizes Optimized
+    xTaskCreate(sensingTask, "SensingTask", 3072, this, 5, &sensingTaskHandle);
+    xTaskCreate(logicTask,   "LogicTask",   3072, this, 5, &logicTaskHandle);
+    xTaskCreate(commsTask,   "CommsTask",   4096, this, 4, &commsTaskHandle); // WiFi/MQTT needs stack
+    xTaskCreate(safetyTask,  "SafetyTask",  2048, this, 6, &safetyTaskHandle); // Minimal logic
 }
 
 void SystemManager::sensingTask(void* pvParameters) {
