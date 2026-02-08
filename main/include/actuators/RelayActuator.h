@@ -2,6 +2,7 @@
 #define RELAY_ACTUATOR_H
 
 #include "interfaces/Actuator.h"
+#include <cstdint>
 
 class RelayActuator : public Actuator {
 private:

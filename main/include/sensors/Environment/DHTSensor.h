@@ -18,6 +18,9 @@ public:
     void read() override;
     std::string report() override;
     const char* getName() override;
+
+    float getTemperature() { return lastTemp; }
+    float getHumidity() { return lastHum; }
 };
 
 #endif // DHT_SENSOR_H

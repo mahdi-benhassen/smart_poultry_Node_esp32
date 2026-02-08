@@ -6,6 +6,8 @@
 #include "freertos/semphr.h"
 #include "esp_log.h"
 
+#include <cstring> // for memset
+
 class DataHub {
 private:
     SystemData currentData;
@@ -15,7 +17,7 @@ public:
     DataHub() {
         dataMutex = xSemaphoreCreateMutex();
         // Initialize with safe defaults
-        currentData = {0};
+        memset(&currentData, 0, sizeof(SystemData));
         currentData.currentState = HouseState::NORMAL;
     }
 
