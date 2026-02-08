@@ -25,4 +25,5 @@ idf_component_register(
              "esp_netif"
              "log"
              "freertos"
+             "esp_adc"
 )

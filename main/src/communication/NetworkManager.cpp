@@ -44,13 +44,10 @@ void NetworkManager::init() {
                                                         NULL,
                                                         &instance_got_ip));
 
-    wifi_config_t wifi_config = {
-        .sta = {
-            .ssid = "SSID_PLACEHOLDER",
-            .password = "PASSWORD_PLACEHOLDER",
-            .threshold = { .authmode = WIFI_AUTH_WPA2_PSK },
-        },
-    };
+    wifi_config_t wifi_config = {0};
+    snprintf((char*)wifi_config.sta.ssid, 32, "SSID_PLACEHOLDER");
+    snprintf((char*)wifi_config.sta.password, 64, "PASSWORD_PLACEHOLDER");
+    wifi_config.sta.threshold.authmode = WIFI_AUTH_WPA2_PSK;
     
     // Check Config.h macros if available
     #ifdef WIFI_SSID
