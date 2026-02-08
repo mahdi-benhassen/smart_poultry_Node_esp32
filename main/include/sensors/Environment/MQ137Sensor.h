@@ -15,6 +15,7 @@ public:
     void read() override;
     std::string report() override;
     const char* getName() override;
+    float getPPM() { return ammoniaPPM; }
 };
 
 #endif // MQ137_SENSOR_H

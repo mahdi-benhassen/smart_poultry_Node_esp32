@@ -7,6 +7,7 @@ class RelayActuator : public Actuator {
 private:
     uint8_t pin;
     bool state;
+    bool manualMode;
     const char* name;
 
 public:
@@ -16,6 +17,9 @@ public:
     void deactivate() override;
     bool isOn() override;
     const char* getName() override;
+    
+    void setManualMode(bool manual) override;
+    bool isManualMode() override;
 };
 
 #endif // RELAY_ACTUATOR_H

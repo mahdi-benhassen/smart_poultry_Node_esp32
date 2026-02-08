@@ -32,9 +32,13 @@ extern "C" void app_main(void)
     NetworkManager netManager;
     netManager.init();
 
-    // Main Loop
+    // Start Application Tasks
+    sysManager.startTasks();
+
+    // Main Loop - Tasks are now running, so we can just delay or monitor heap
     while (1) {
-        sysManager.pollSensors();
-        vTaskDelay(pdMS_TO_TICKS(1000));
+        // sysManager.pollSensors(); // Moved to SensingTask
+        vTaskDelay(pdMS_TO_TICKS(10000));
+        ESP_LOGI(TAG, "System Running... Free Heap: %d", (int)esp_get_free_heap_size());
     }
 }

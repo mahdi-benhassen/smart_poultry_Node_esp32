@@ -15,6 +15,7 @@ public:
     void read() override;
     std::string report() override;
     const char* getName() override;
+    float getLux() { return lux; }
 };
 
 #endif // BH1750_SENSOR_H

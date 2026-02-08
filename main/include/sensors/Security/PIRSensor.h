@@ -15,6 +15,7 @@ public:
     void read() override;
     std::string report() override;
     const char* getName() override;
+    bool isMotionDetected() { return motionDetected; }
 };
 
 #endif // PIR_SENSOR_H

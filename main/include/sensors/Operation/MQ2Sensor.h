@@ -15,6 +15,7 @@ public:
     void read() override;
     std::string report() override;
     const char* getName() override;
+    float getSmokeLevel() { return smokeValue; }
 };
 
 #endif // MQ2_SENSOR_H
