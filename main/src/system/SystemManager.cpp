@@ -1,20 +1,53 @@
 #include "system/SystemManager.h"
 #include "esp_log.h"
 #include <cstring>
+#include "Config.h"
+
+// Include Sensor Implementations
+#include "sensors/Environment/DHTSensor.h"
+#include "sensors/Environment/MQ137Sensor.h"
+#include "sensors/Environment/BH1750Sensor.h"
+#include "sensors/Environment/SHT31Sensor.h"
+#include "sensors/Resource/FeedLevelSensor.h"
+#include "sensors/Security/PIRSensor.h"
+#include "sensors/Health/ThermalCamera.h"
 
 static const char *TAG = "SystemManager";
 
 SystemManager::SystemManager() {}
 
-void SystemManager::registerSensor(Sensor* sensor) {
-    sensors.push_back(sensor);
-}
-
-void SystemManager::registerActuator(Actuator* actuator) {
-    actuators.push_back(actuator);
-}
-
 void SystemManager::init() {
+    ESP_LOGI(TAG, "Registering Sensors...");
+
+    #if ENABLE_DHT22
+        registerSensor(new DHTSensor(PIN_DHT, 22));
+    #endif
+
+    #if ENABLE_MQ137
+        registerSensor(new MQ137Sensor(PIN_MQ137));
+    #endif
+
+    #if ENABLE_BH1750
+        registerSensor(new BH1750Sensor());
+    #endif
+
+    #if ENABLE_SHT31
+        registerSensor(new SHT31Sensor());
+    #endif
+
+    #if ENABLE_HC_SR04
+        registerSensor(new FeedLevelSensor(PIN_TRIG, PIN_ECHO));
+    #endif
+
+    #if ENABLE_PIR
+        registerSensor(new PIRSensor(PIN_PIR));
+    #endif
+    
+    #if ENABLE_AMG8833
+        registerSensor(new ThermalCamera());
+    #endif
+
+    ESP_LOGI(TAG, "Initializing Sensors...");
     for (auto sensor : sensors) {
         sensor->init();
     }
