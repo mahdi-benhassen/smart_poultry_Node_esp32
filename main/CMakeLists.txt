@@ -28,4 +28,5 @@ idf_component_register(
              "log"
              "freertos"
              "esp_adc"
+             "esp_timer"
 )
