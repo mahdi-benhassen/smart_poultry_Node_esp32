@@ -14,7 +14,7 @@ void MQ2Sensor::init() {
     if (adc1_handle_mq2 == NULL) {
         adc_oneshot_unit_init_cfg_t init_config1 = {
             .unit_id = ADC_UNIT_1,
-            .clk_src = ADC_DIGI_CLK_SRC_DEFAULT,
+            .clk_src = ADC_RTC_CLK_SRC_DEFAULT,
             .ulp_mode = ADC_ULP_MODE_DISABLE,
         };
         // This might fail if unit 1 is already inited by MQ137. 
