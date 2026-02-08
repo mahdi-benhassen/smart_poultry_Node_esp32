@@ -8,6 +8,9 @@
 
 static const char *TAG = "NetworkManager";
 
+static void wifi_event_handler(void* arg, esp_event_base_t event_base,
+                                int32_t event_id, void* event_data); // Forward declaration
+
 static void smartconfig_event_handler(void* arg, esp_event_base_t event_base,
                                       int32_t event_id, void* event_data)
 {
@@ -45,7 +48,7 @@ static void smartconfig_event_handler(void* arg, esp_event_base_t event_base,
         ESP_ERROR_CHECK( esp_wifi_set_config(WIFI_IF_STA, &wifi_config) );
         esp_wifi_connect();
     } else if (event_base == SC_EVENT && event_id == SC_EVENT_SEND_ACK_DONE) {
-        xEventGroupSetBits((EventGroupHandle_t)arg, BIT0); // Signal done if using event groups
+        // xEventGroupSetBits((EventGroupHandle_t)arg, BIT0); // Signal done if using event groups
         // Or just stop it here
         esp_smartconfig_stop();
         ESP_LOGI(TAG, "SmartConfig Complete");
@@ -76,6 +79,7 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
         NetworkManager* nm = (NetworkManager*)arg;
         if (nm) {
              nm->connected = true;
+             nm->provisioning = false;
              // We should also potentially reconnect MQTT here if it doesn't auto-reconnect
              // esp-mqtt usually handles reconnects if network is available
              nm->flushQueue(); 
