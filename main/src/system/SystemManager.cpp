@@ -11,6 +11,7 @@
 #include "sensors/Resource/FeedLevelSensor.h"
 #include "sensors/Security/PIRSensor.h"
 #include "sensors/Health/ThermalCamera.h"
+#include "sensors/Operation/MQ2Sensor.h"
 
 static const char *TAG = "SystemManager";
 
@@ -45,6 +46,10 @@ void SystemManager::init() {
     
     #if ENABLE_AMG8833
         registerSensor(new ThermalCamera());
+    #endif
+
+    #if ENABLE_MQ2
+        registerSensor(new MQ2Sensor(PIN_MQ2));
     #endif
 
     ESP_LOGI(TAG, "Initializing Sensors...");

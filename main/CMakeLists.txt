@@ -10,6 +10,7 @@ idf_component_register(
          "src/sensors/Resource/FeedLevelSensor.cpp"
          "src/sensors/Security/PIRSensor.cpp"
          "src/sensors/Health/ThermalCamera.cpp"
+         "src/sensors/Operation/MQ2Sensor.cpp"
     INCLUDE_DIRS "include"
                  "include/sensors/Environment"
                  "include/sensors/Resource"
