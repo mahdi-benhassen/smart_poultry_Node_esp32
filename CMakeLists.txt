@@ -3,4 +3,4 @@ cmake_minimum_required(VERSION 3.16)
 set(EXTRA_COMPONENT_DIRS "components")
 
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
-project(poultry_system VERSION 0.1.0)
+project(poultry_system VERSION 0.1.1)
