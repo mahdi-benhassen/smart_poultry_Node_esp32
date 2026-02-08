@@ -67,10 +67,17 @@
 // =================================================================================
 #define SERIAL_BAUD_RATE        115200
 #define SENSOR_POLL_INTERVAL_MS 5000
-#define WIFI_SSID               "Poultry_Net"
-#define WIFI_PASSWORD           "secure_password"
-#define MQTT_SERVER             "mqtt.example.com"
-#define MQTT_PORT               8883
+
+// WiFi - Leave empty to force SmartConfig provisioning
+#define WIFI_SSID               "" 
+#define WIFI_PASSWORD           ""
+
+// MQTT
+#define MQTT_SERVER             "mqtt://broker.hivemq.com" // Public broker for testing
+#define MQTT_PORT               1883 // 8883 for TLS
+
+// OTA
+#define FIRMWARE_UPDATE_URL     "https://your-domain.com/firmware/poultry_system.bin"
 
 // =================================================================================
 // Pin Definitions (ESP32 Standard Mapping)

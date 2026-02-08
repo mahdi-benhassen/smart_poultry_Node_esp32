@@ -257,8 +257,11 @@ void NetworkManager::checkOTAUpdate() {
     // In a real scenario, we would check a manifest or version file first.
     // Here we assume a direct URL to the binary.
     // Replace with your actual firmware URL
-    // TODO: Update this URL to your actual deployment server or S3 bucket before shipping.
+    #ifdef FIRMWARE_UPDATE_URL
+    #define OTA_URL FIRMWARE_UPDATE_URL
+    #else
     #define OTA_URL "https://example.com/firmware.bin"
+    #endif
     
     esp_http_client_config_t config = {};
     config.url = OTA_URL;
