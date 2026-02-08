@@ -1,4 +1,3 @@
 dependencies:
-  espressif/arduino-esp32:
-    version: "^3.0.0"
-    public: true
+  espressif/esp-modbus: "^1.0.12"
+  espressif/mdns: "^1.1.0"

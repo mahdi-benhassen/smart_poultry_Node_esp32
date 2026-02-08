@@ -13,11 +13,14 @@ idf_component_register(
          "src/system/Logger.cpp"
          "src/system/SystemManager.cpp"
     INCLUDE_DIRS "include"
-    REQUIRES "arduino-esp32"
-             Adafruit_Sensor
-             DHT-sensor-library
-             BH1750
-             pubsubclient
+    REQUIRES "esp_wifi"
+             "nvs_flash"
+             "mqtt"
+             "driver"
+             "esp_event"
+             "esp_netif"
+             "esp_log"
+             "freertos"
              arduino-LoRa
              ArduinoJson
              MQ135

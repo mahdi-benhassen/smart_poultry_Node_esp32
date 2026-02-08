@@ -1,9 +1,5 @@
 Run git config --global --add safe.directory "$GITHUB_WORKSPACE"
-  git config --global --add safe.directory "$GITHUB_WORKSPACE"
-  . $IDF_PATH/export.sh
-  idf.py build
-  shell: sh -e {0}
-/__w/_temp/9751d883-828f-418d-8e42-89066f7cc011.sh: 22: /opt/esp/idf/export.sh: [[: not found
+/__w/_temp/e2202f32-14c4-4556-839e-b9e6c93cb6be.sh: 22: /opt/esp/idf/export.sh: [[: not found
 Detecting the Python interpreter
 Checking "python3" ...
 Python 3.8.10
@@ -79,43 +75,53 @@ NOTICE: [22/25] espressif/qrcode (0.1.0~2)
 NOTICE: [23/25] espressif/rmaker_common (1.6.0)
 NOTICE: [24/25] joltwallet/littlefs (1.20.4)
 NOTICE: [25/25] idf (5.1.7)
-CMake Error at /opt/esp/idf/tools/cmake/component.cmake:225 (message):
-  CMake Warning (dev) at build_properties.temp.cmake:8:
+-- DEBUG: Use esp-modbus component folder: /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/managed_components/espressif__esp-modbus.
+NOTICE: Skipping optional dependency: espressif/esp-sr
+-- Project sdkconfig file /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/sdkconfig
+Loading defaults file /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/sdkconfig.defaults...
+Compiler supported targets: xtensa-esp32-elf
 
-    Syntax Warning in cmake code at column 47
-
-  
-
-    Argument not separated from preceding token by whitespace.
-
-  Call Stack (most recent call first):
-
-    /opt/esp/idf/tools/cmake/scripts/component_get_requirements.cmake:3 (include)
-
-  This warning is for project developers.  Use -Wno-dev to suppress it.
-
-
-
-  CMake Error at
-  /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/components/Adafruit_Sensor/CMakeLists.txt:1:
-
-
-    Parse error.  Expected "(", got unquoted argument with text
-    "arduino-esp32".
-
-  Call Stack (most recent call first):
-
-    /opt/esp/idf/tools/cmake/scripts/component_get_requirements.cmake:107 (include)
-    /opt/esp/idf/tools/cmake/scripts/component_get_requirements.cmake:127 (__component_get_requirements)
-
-  
-
-
-
+-- Looking for sys/types.h
+-- Looking for sys/types.h - found
+-- Looking for stdint.h
+-- Looking for stdint.h - found
+-- Looking for stddef.h
+-- Looking for stddef.h - found
+-- Check size of time_t
+-- Check size of time_t - done
+-- Found Python3: /opt/esp/python_env/idf5.1_py3.8_env/bin/python (found version "3.8.10") found components: Interpreter
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Failed
+-- Check if compiler accepts -pthread
+-- Check if compiler accepts -pthread - no
+-- Looking for pthread_create in pthreads
+-- Looking for pthread_create in pthreads - not found
+-- Looking for pthread_create in pthread
+-- Looking for pthread_create in pthread - not found
+-- Could NOT find Threads (missing: Threads_FOUND) 
+-- Performing Test C_COMPILER_SUPPORTS_WFORMAT_SIGNEDNESS
+-- Performing Test C_COMPILER_SUPPORTS_WFORMAT_SIGNEDNESS - Success
+-- USING O3
+-- App "poultry_system" version: d72bbb6
+-- Adding linker script /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/build/esp-idf/esp_system/ld/memory.ld
+-- Adding linker script /opt/esp/idf/components/esp_system/ld/esp32/sections.ld.in
+-- Adding linker script /opt/esp/idf/components/esp_rom/esp32/ld/esp32.rom.ld
+-- Adding linker script /opt/esp/idf/components/esp_rom/esp32/ld/esp32.rom.api.ld
+-- Adding linker script /opt/esp/idf/components/esp_rom/esp32/ld/esp32.rom.libgcc.ld
+-- Adding linker script /opt/esp/idf/components/esp_rom/esp32/ld/esp32.rom.newlib-data.ld
+-- Adding linker script /opt/esp/idf/components/esp_rom/esp32/ld/esp32.rom.syscalls.ld
+-- Adding linker script /opt/esp/idf/components/esp_rom/esp32/ld/esp32.rom.newlib-funcs.ld
+-- Adding linker script /opt/esp/idf/components/soc/esp32/ld/esp32.peripherals.ld
+-- DEBUG: Use esp-modbus component folder: /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/managed_components/espressif__esp-modbus.
+ESP Insights Project commit: d72bbb6
+ESP RainMaker Project commit: d72bbb6
+CMake Error at /opt/esp/idf/tools/cmake/component.cmake:314 (message):
+  Include directory
+  '/__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/components/Adafruit_Sensor/src'
+  is not a directory.
 Call Stack (most recent call first):
-  /opt/esp/idf/tools/cmake/build.cmake:582 (__component_get_requirements)
-  /opt/esp/idf/tools/cmake/project.cmake:604 (idf_build_process)
-  CMakeLists.txt:6 (project)
+  /opt/esp/idf/tools/cmake/component.cmake:482 (__component_add_include_dirs)
+  components/Adafruit_Sensor/CMakeLists.txt:1 (idf_component_register)
 
 
 -- Configuring incomplete, errors occurred!
