@@ -15,7 +15,7 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v4
         with:
-          submodules: 'recursive'
+          submodules: 'false'
 
       - name: Build Firmware
         run: |
