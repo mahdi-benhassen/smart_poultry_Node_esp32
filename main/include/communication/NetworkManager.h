@@ -10,9 +10,15 @@
 #include <deque>
 #include <string>
 
+#include "communication/WebServer.h"
+
+class SystemManager; // Forward declaration
+
 class NetworkManager {
 private:
     DataHub* dataHub;
+    SystemManager* sysManager;
+    WebServer* webServer;
     esp_mqtt_client_handle_t mqtt_client;
     bool connected;
     bool provisioning;
@@ -25,13 +31,15 @@ private:
     void flushQueue();
 
 public:
-    NetworkManager(DataHub* hub);
+    NetworkManager(DataHub* hub, SystemManager* sys);
     void init();
     void publish(const char* topic, const char* payload);
     bool isConnected();
     
-    // Provisioning
+    // Provisioning & AP
     void startSmartConfig();
+    void startAP();
+    void startWebServer();
     bool isProvisioning() { return provisioning; }
 
     // Friend functions for callbacks

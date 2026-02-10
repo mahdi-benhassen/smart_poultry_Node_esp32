@@ -102,26 +102,33 @@ void wifi_event_handler(void* arg, esp_event_base_t event_base,
         if (nm) nm->connected = false;
         
         if (nm && !nm->isProvisioning()) {
+        // If not provisioning (SmartConfig), maybe we are in AP mode or just lost connection
+        // We can try to reconnect if we are in STA mode
+        wifi_mode_t mode;
+        esp_wifi_get_mode(&mode);
+        if (mode == WIFI_MODE_STA || mode == WIFI_MODE_APSTA) {
             esp_wifi_connect();
             ESP_LOGI(TAG, "retry to connect to the AP");
-        } else {
-             ESP_LOGI(TAG, "Disconnected (Provisioning Mode or stopped)");
         }
-    } else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
-        ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
-        ESP_LOGI(TAG, "got ip:" IPSTR, IP2STR(&event->ip_info.ip));
-        NetworkManager* nm = (NetworkManager*)arg;
-        if (nm) {
-             nm->connected = true;
-             nm->provisioning = false;
-             // We should also potentially reconnect MQTT here if it doesn't auto-reconnect
-             // esp-mqtt usually handles reconnects if network is available
-             nm->flushQueue(); 
-        }
+    } else {
+         ESP_LOGI(TAG, "Disconnected (Provisioning Mode or stopped)");
+    }
+} else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
+    ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
+    ESP_LOGI(TAG, "got ip:" IPSTR, IP2STR(&event->ip_info.ip));
+    NetworkManager* nm = (NetworkManager*)arg;
+    if (nm) {
+         nm->connected = true;
+         nm->provisioning = false;
+         nm->flushQueue(); 
+         // Ensure WebServer is running
+         nm->startWebServer();
     }
 }
+}
 
-NetworkManager::NetworkManager(DataHub* hub) : dataHub(hub), mqtt_client(NULL), connected(false), provisioning(false) {
+NetworkManager::NetworkManager(DataHub* hub, SystemManager* sys) 
+    : dataHub(hub), sysManager(sys), webServer(NULL), mqtt_client(NULL), connected(false), provisioning(false) {
     queueMutex = xSemaphoreCreateMutex();
 }
 
@@ -141,6 +148,37 @@ void NetworkManager::startSmartConfig() {
     }
 }
 
+void NetworkManager::startAP() {
+    ESP_LOGI(TAG, "Starting SoftAP...");
+    
+    wifi_config_t wifi_config = {};
+    strcpy((char*)wifi_config.ap.ssid, "Poultry_Node_Setup");
+    wifi_config.ap.ssid_len = strlen("Poultry_Node_Setup");
+    strcpy((char*)wifi_config.ap.password, "12345678");
+    wifi_config.ap.max_connection = 4;
+    wifi_config.ap.authmode = WIFI_AUTH_WPA_WPA2_PSK;
+
+    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
+    ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_AP, &wifi_config));
+    ESP_ERROR_CHECK(esp_wifi_start());
+    
+    ESP_LOGI(TAG, "SoftAP started. SSID: Poultry_Node_Setup Pass: 12345678");
+}
+
+void NetworkManager::startWebServer() {
+    if (!webServer) {
+        webServer = new WebServer(dataHub, sysManager);
+    }
+    // Only start if not already running? WebServer::start handles multiple calls? 
+    // Usually httpd_start checks if *server is NULL.
+    // Our wrapper implementation checks?
+    // Let's assume it's safe or check inside wrapper.
+    // Our wrapper: if (httpd_start(...) == ESP_OK). It doesn't check if running.
+    // But server handle is initialized to NULL in constructor.
+    // We should add a check in WebServer::start or just call it here.
+    webServer->start();
+}
+
 void NetworkManager::init() {
     ESP_LOGI(TAG, "Initializing Network...");
 
@@ -151,6 +189,7 @@ void NetworkManager::init() {
     if (err != ESP_OK) { ESP_LOGE(TAG, "Failed to create event loop: %s", esp_err_to_name(err)); return; }
 
     esp_netif_create_default_wifi_sta();
+    esp_netif_create_default_wifi_ap(); // Add AP support
 
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     err = esp_wifi_init(&cfg);
@@ -174,11 +213,13 @@ void NetworkManager::init() {
                                               &instance_got_ip);
     if (err != ESP_OK) ESP_LOGW(TAG, "Failed to register IP handler");
 
-    err = esp_wifi_set_mode(WIFI_MODE_STA);
-    if (err != ESP_OK) { ESP_LOGE(TAG, "Failed to set mode: %s", esp_err_to_name(err)); return; }
-
     // Check if we have saved config
     wifi_config_t wifi_config;
+    // We need to set mode to STA temporarily to check config? Or just check?
+    // esp_wifi_get_config works after init.
+    
+    // Default to STA
+    err = esp_wifi_set_mode(WIFI_MODE_STA);
     err = esp_wifi_get_config(WIFI_IF_STA, &wifi_config);
     
     bool has_config = (strlen((char*)wifi_config.sta.ssid) > 0);
@@ -199,15 +240,15 @@ void NetworkManager::init() {
         if (err != ESP_OK) ESP_LOGW(TAG, "Failed to set config: %s", esp_err_to_name(err));
     }
 
-    ESP_LOGI(TAG, "Starting WiFi...");
-    ESP_ERROR_CHECK(esp_wifi_start());
-
     if (has_config) {
         ESP_LOGI(TAG, "Connecting to saved network...");
+        ESP_ERROR_CHECK(esp_wifi_start());
         esp_wifi_connect();
+        startWebServer(); // Start server for LAN access
     } else {
-        ESP_LOGW(TAG, "No WiFi config found. Starting SmartConfig...");
-        startSmartConfig();
+        ESP_LOGW(TAG, "No WiFi config found. Starting SoftAP...");
+        startAP();
+        startWebServer();
     }
 
     // MQTT Init
