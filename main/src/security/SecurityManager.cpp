@@ -1,5 +1,6 @@
 #include "security/SecurityManager.h"
-#include <Preferences.h>
+#include "nvs_flash.h"
+#include "nvs.h"
 #include "mbedtls/aes.h"
 #include "esp_log.h"
 
@@ -9,12 +10,11 @@ static const char* TAG = "SecurityManager";
 unsigned char aes_key[16] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
                              0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F};
 
-Preferences preferences;
-
 SecurityManager::SecurityManager(DataHub* hub) : dataHub(hub) {}
 
 void SecurityManager::initPreferences() {
-    preferences.begin("poultry_config", false); // Read-Write
+    // NVS is initialized in main.cpp
+    // This function can be used for specific namespace initialization if needed
 }
 
 void SecurityManager::process() {
@@ -117,14 +117,41 @@ const char* SecurityManager::getWifiPassword() {
 }
 
 void SecurityManager::saveMQTT(const char* server, int port) {
-    preferences.putString("mqtt_server", server);
-    preferences.putInt("mqtt_port", port);
+    nvs_handle_t my_handle;
+    esp_err_t err = nvs_open("poultry_config", NVS_READWRITE, &my_handle);
+    if (err == ESP_OK) {
+        nvs_set_str(my_handle, "mqtt_server", server);
+        nvs_set_i32(my_handle, "mqtt_port", port);
+        nvs_commit(my_handle);
+        nvs_close(my_handle);
+    }
 }
 
 std::string SecurityManager::getMQTTServer() {
-    return std::string(preferences.getString("mqtt_server", MQTT_SERVER).c_str());
+    nvs_handle_t my_handle;
+    esp_err_t err = nvs_open("poultry_config", NVS_READONLY, &my_handle);
+    if (err != ESP_OK) return MQTT_SERVER;
+
+    size_t required_size;
+    if (nvs_get_str(my_handle, "mqtt_server", NULL, &required_size) == ESP_OK) {
+        char* server = new char[required_size];
+        nvs_get_str(my_handle, "mqtt_server", server, &required_size);
+        std::string result(server);
+        delete[] server;
+        nvs_close(my_handle);
+        return result;
+    }
+    nvs_close(my_handle);
+    return MQTT_SERVER;
 }
 
 int SecurityManager::getMQTTPort() {
-    return preferences.getInt("mqtt_port", MQTT_PORT);
+    nvs_handle_t my_handle;
+    esp_err_t err = nvs_open("poultry_config", NVS_READONLY, &my_handle);
+    if (err != ESP_OK) return MQTT_PORT;
+
+    int32_t port = MQTT_PORT;
+    nvs_get_i32(my_handle, "mqtt_port", &port);
+    nvs_close(my_handle);
+    return (int)port;
 }
