@@ -14,6 +14,13 @@ enum class HouseState {
     MAINTENANCE_MODE
 };
 
+enum class SecurityState {
+    DISARMED,
+    ARMED,
+    ALARM_INTRUSION,
+    ALARM_FIRE
+};
+
 // Sensor Data Structure (Data Marshalling)
 struct SystemData {
     float temperature;
@@ -30,6 +37,7 @@ struct SystemData {
     // Metadata
     uint32_t timestamp;
     HouseState currentState;
+    SecurityState securityState;
 };
 
 #endif // SYSTEM_STATE_H

@@ -11,6 +11,40 @@ static const char *TAG = "NetworkManager";
 void wifi_event_handler(void* arg, esp_event_base_t event_base,
                         int32_t event_id, void* event_data); // Forward declaration
 
+void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_t event_id, void *event_data) {
+    NetworkManager* self = (NetworkManager*)handler_args;
+    esp_mqtt_event_handle_t event = (esp_mqtt_event_handle_t)event_data;
+    
+    switch ((esp_mqtt_event_id_t)event_id) {
+        case MQTT_EVENT_CONNECTED:
+            ESP_LOGI(TAG, "MQTT_EVENT_CONNECTED");
+            self->connected = true;
+            esp_mqtt_client_subscribe(event->client, "poultry/cmd", 0);
+            self->flushQueue();
+            break;
+        case MQTT_EVENT_DISCONNECTED:
+            ESP_LOGI(TAG, "MQTT_EVENT_DISCONNECTED");
+            self->connected = false;
+            break;
+        case MQTT_EVENT_DATA:
+            ESP_LOGI(TAG, "MQTT_EVENT_DATA");
+            // Basic Command Parsing
+            // Note: event->data is not null-terminated
+            if (event->topic_len > 0 && strncmp(event->topic, "poultry/cmd", event->topic_len) == 0) {
+                 if (strncmp(event->data, "ARM", event->data_len) == 0) {
+                     ESP_LOGI(TAG, "Command: ARM");
+                     self->dataHub->setSecurityState(SecurityState::ARMED);
+                 } else if (strncmp(event->data, "DISARM", event->data_len) == 0) {
+                     ESP_LOGI(TAG, "Command: DISARM");
+                     self->dataHub->setSecurityState(SecurityState::DISARMED);
+                 }
+            }
+            break;
+        default:
+            break;
+    }
+}
+
 static void smartconfig_event_handler(void* arg, esp_event_base_t event_base,
                                       int32_t event_id, void* event_data)
 {
@@ -87,7 +121,7 @@ void wifi_event_handler(void* arg, esp_event_base_t event_base,
     }
 }
 
-NetworkManager::NetworkManager() : mqtt_client(NULL), connected(false), provisioning(false) {
+NetworkManager::NetworkManager(DataHub* hub) : dataHub(hub), mqtt_client(NULL), connected(false), provisioning(false) {
     queueMutex = xSemaphoreCreateMutex();
 }
 
@@ -195,6 +229,7 @@ void NetworkManager::init() {
     if (mqtt_client == NULL) {
         ESP_LOGE(TAG, "Failed to init MQTT client");
     } else {
+        esp_mqtt_client_register_event(mqtt_client, ESP_EVENT_ANY_ID, mqtt_event_handler, this);
         err = esp_mqtt_client_start(mqtt_client);
         if (err != ESP_OK) {
             ESP_LOGE(TAG, "Failed to start MQTT client: %s", esp_err_to_name(err));

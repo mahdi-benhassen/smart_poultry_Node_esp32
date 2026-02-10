@@ -52,6 +52,7 @@
 #define ENABLE_RELAY_HEATER     1   // Heating
 #define ENABLE_RELAY_FEEDER     1   // Automated Feeder
 #define ENABLE_RELAY_LIGHT      1   // Lighting Control
+#define ENABLE_RELAY_SIREN      1   // Security Siren
 
 // =================================================================================
 // Communication & Security
@@ -106,17 +107,18 @@
 #define PIN_PIR                 27
 #define PIN_DOOR_SWITCH         12
 #define PIN_TRIG                13  // Ultrasonic
-#define PIN_ECHO                14  // Ultrasonic
+#define PIN_ECHO                32  // Ultrasonic (Moved from 14 to avoid LoRa conflict)
 
 // Relays (Active Low/High depending on module)
 #define PIN_RELAY_FAN           15
 #define PIN_RELAY_HEATER        2
 #define PIN_RELAY_FEEDER        0
 #define PIN_RELAY_LIGHT         16
+#define PIN_RELAY_SIREN         33  // New Siren Pin (Repurposed from ZMPT101B)
 
 // UART (MH-Z19B, GPS)
-#define PIN_UART2_TX            17
-#define PIN_UART2_RX            16
+// #define PIN_UART2_TX            17 // Conflict with nothing yet
+// #define PIN_UART2_RX            16 // Conflict with Light Relay
 
 // =================================================================================
 // Automation Thresholds

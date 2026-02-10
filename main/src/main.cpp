@@ -28,8 +28,8 @@ extern "C" void app_main(void)
     SystemManager sysManager;
     sysManager.init();
 
-    // Initialize Network (Now managed inside SystemManager or passed to it)
-    sysManager.netManager.init();
+    // Initialize Network (Now managed inside SystemManager)
+    // sysManager.netManager.init(); // Removed
 
     // Start Application Tasks
     sysManager.startTasks();

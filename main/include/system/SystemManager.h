@@ -9,6 +9,7 @@
 #include "freertos/task.h"
 
 #include "communication/NetworkManager.h"
+#include "security/SecurityManager.h"
 
 class LogicEngine; // Forward declaration
 
@@ -19,9 +20,11 @@ private:
     
     DataHub* dataHub;
     LogicEngine* logicEngine;
-    
+    SecurityManager* securityManager;
+    NetworkManager* netManager;
+
 public:
-    NetworkManager netManager;
+    // NetworkManager netManager; // Moved to pointer
 
 private:
     // Task Handles
@@ -48,6 +51,8 @@ public:
     Sensor* getSensor(const char* name);
     Actuator* getActuator(const char* name);
     DataHub* getDataHub() { return dataHub; }
+    SecurityManager* getSecurityManager() { return securityManager; }
+    NetworkManager* getNetworkManager() { return netManager; }
 };
 
 #endif // SYSTEM_MANAGER_H

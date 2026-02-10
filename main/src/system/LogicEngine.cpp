@@ -13,12 +13,13 @@ void LogicEngine::process() {
     HouseState nextState = data.currentState;
 
     // Emergency Checks (Highest Priority)
-    if (data.smokeLevel > 200.0) { // Threshold for fire?
+    // SecurityState overrides HouseState logic if FIRE is detected by SecurityManager
+    if (data.securityState == SecurityState::ALARM_FIRE || data.smokeLevel > 300.0) { 
         nextState = HouseState::EMERGENCY_SHUTDOWN;
     }
     else if (data.currentState == HouseState::EMERGENCY_SHUTDOWN) {
         // Require manual reset or very low smoke to exit
-        if (data.smokeLevel < 50.0) {
+        if (data.smokeLevel < 50.0 && data.securityState != SecurityState::ALARM_FIRE) {
             nextState = HouseState::NORMAL; // Or require manual command
         }
     }
@@ -68,13 +69,30 @@ void LogicEngine::process() {
             {
                 Actuator* fan = sysManager->getActuator("Fan");
                 Actuator* heater = sysManager->getActuator("Heater");
+                Actuator* siren = sysManager->getActuator("Siren");
+                
                 if (fan) fan->deactivate(); // Stop fanning fire
                 if (heater) heater->deactivate();
+                if (siren) siren->activate();
+
                 ESP_LOGE(TAG, "EMERGENCY SHUTDOWN ACTIVE");
             }
             break;
         default:
             break;
+    }
+
+    // Security Logic (Independent of HouseState but can trigger alarms)
+    if (data.securityState == SecurityState::ALARM_INTRUSION) {
+        // Trigger Intruder Alarm Actuators
+        Actuator* siren = sysManager->getActuator("Siren");
+        if (siren) siren->activate();
+        ESP_LOGW(TAG, "SECURITY ALARM: INTRUSION!");
+    } else if (data.securityState != SecurityState::ALARM_FIRE) {
+        // Turn off siren if no alarm (and not FIRE)
+        // Note: FIRE state is handled in HouseState::EMERGENCY_SHUTDOWN which activates siren
+        Actuator* siren = sysManager->getActuator("Siren");
+        if (siren) siren->deactivate();
     }
 }
 

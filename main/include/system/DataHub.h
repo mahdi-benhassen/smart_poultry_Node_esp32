@@ -131,6 +131,22 @@ public:
         return s;
     }
 
+    void setSecurityState(SecurityState state) {
+        if (xSemaphoreTake(dataMutex, pdMS_TO_TICKS(10))) {
+            currentData.securityState = state;
+            xSemaphoreGive(dataMutex);
+        }
+    }
+
+    SecurityState getSecurityState() {
+        SecurityState s = SecurityState::DISARMED;
+        if (xSemaphoreTake(dataMutex, pdMS_TO_TICKS(10))) {
+            s = currentData.securityState;
+            xSemaphoreGive(dataMutex);
+        }
+        return s;
+    }
+
     // Snapshot for marshalling
     SystemData getSnapshot() {
         SystemData snapshot;

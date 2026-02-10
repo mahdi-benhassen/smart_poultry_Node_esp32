@@ -74,6 +74,9 @@ void SystemManager::init() {
     #ifdef PIN_RELAY_HEATER
     registerActuator(new RelayActuator(PIN_RELAY_HEATER, "Heater"));
     #endif
+    #if ENABLE_RELAY_SIREN
+    registerActuator(new RelayActuator(PIN_RELAY_SIREN, "Siren"));
+    #endif
 
     ESP_LOGI(TAG, "Initializing Sensors...");
     for (auto sensor : sensors) {
@@ -82,6 +85,10 @@ void SystemManager::init() {
     for (auto actuator : actuators) {
         actuator->init();
     }
+
+    // Initialize Network
+    ESP_LOGI(TAG, "Initializing Network...");
+    netManager->init();
 }
 
 void SystemManager::startTasks() {
@@ -152,19 +159,25 @@ void SystemManager::logicTask(void* pvParameters) {
 void SystemManager::commsTask(void* pvParameters) {
     SystemManager* self = (SystemManager*)pvParameters;
     DataHub* hub = self->getDataHub();
-    NetworkManager* net = &self->netManager; // We need access to netManager
+    NetworkManager* net = self->getNetworkManager(); // We need access to netManager
 
     // Check for OTA update on boot (or periodic)
     // net->checkOTAUpdate();
 
     for (;;) {
         SystemData snapshot = hub->getSnapshot();
-        // Construct JSON
-        // We can use cJSON here
-        // NetworkManager::publish("poultry/status", json_string);
-        net->publish("poultry/status", "{\"status\":\"ok\"}"); // Example usage
         
-        ESP_LOGI(TAG, "Comms: Broadcasting State %d, Temp %.2f", (int)snapshot.currentState, snapshot.temperature);
+        // Simple JSON Construction
+        char jsonBuffer[256];
+        snprintf(jsonBuffer, sizeof(jsonBuffer), 
+            "{\"temp\":%.2f,\"humid\":%.2f,\"smoke\":%.2f,\"motion\":%d,\"state\":%d,\"sec_state\":%d}",
+            snapshot.temperature, snapshot.humidity, snapshot.smokeLevel, 
+            snapshot.motionDetected, (int)snapshot.currentState, (int)snapshot.securityState);
+
+        net->publish("poultry/status", jsonBuffer);
+        
+        ESP_LOGI(TAG, "Comms: Broadcasting State %d, SecState %d, Temp %.2f", 
+            (int)snapshot.currentState, (int)snapshot.securityState, snapshot.temperature);
         
         // Periodic OTA check (e.g., once a day, or triggered by MQTT command)
         // For now, just a placeholder.
@@ -178,6 +191,9 @@ void SystemManager::safetyTask(void* pvParameters) {
     DataHub* hub = self->getDataHub();
 
     for (;;) {
+        // Run Security Logic
+        self->securityManager->process();
+
         // Watchdog Logic
         // If temp > 50C (Fire?), shut down everything immediately
         if (hub->getTemperature() > 50.0) {
