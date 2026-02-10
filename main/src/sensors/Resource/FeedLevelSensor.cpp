@@ -2,6 +2,7 @@
 #include "esp_log.h"
 #include "driver/gpio.h"
 #include "esp_timer.h"
+#include "rom/ets_sys.h" // For ets_delay_us
 #include <sstream>
 
 static const char *TAG = "FeedLevelSensor";
@@ -18,9 +19,9 @@ void FeedLevelSensor::read() {
     // Basic blocking implementation for demonstration
     // Trigger
     gpio_set_level((gpio_num_t)trigPin, 0);
-    esp_rom_delay_us(2);
+    ets_delay_us(2);
     gpio_set_level((gpio_num_t)trigPin, 1);
-    esp_rom_delay_us(10);
+    ets_delay_us(10);
     gpio_set_level((gpio_num_t)trigPin, 0);
 
     // Measure echo (Timeout handled roughly)

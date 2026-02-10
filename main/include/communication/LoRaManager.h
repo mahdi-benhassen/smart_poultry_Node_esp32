@@ -1,10 +1,13 @@
 #ifndef LORA_MANAGER_H
 #define LORA_MANAGER_H
 
-#include <LoRa.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/semphr.h>
 #include "Config.h"
+#include <string>
+
+// Typedef String to std::string for compatibility if needed, or replace usage
+typedef std::string String;
 
 class LoRaManager {
 private:
