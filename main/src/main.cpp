@@ -5,6 +5,7 @@
 #include "esp_log.h"
 #include "nvs_flash.h"
 #include "driver/gpio.h"
+#include "Arduino.h"
 
 #include "Config.h"
 #include "system/SystemManager.h"
@@ -12,8 +13,21 @@
 
 static const char *TAG = "MAIN";
 
+// Arduino-ESP32 linker satisfaction
+void setup() {}
+void loop() {}
+
+// Fix for missing symbol in some IDF/Arduino versions
+extern "C" void esp_timer_impl_update_apb_freq(uint32_t apb_ticks_per_us) {
+    // Placeholder to satisfy linker. 
+    // If dynamic frequency scaling is not used, this is safe.
+}
+
 extern "C" void app_main(void)
 {
+    // Initialize Arduino Core
+    initArduino();
+
     // Initialize NVS
     esp_err_t ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
