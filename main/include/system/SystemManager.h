@@ -10,6 +10,7 @@
 
 #include "communication/NetworkManager.h"
 #include "security/SecurityManager.h"
+#include "esp_adc/adc_oneshot.h"
 
 class LogicEngine; // Forward declaration
 
@@ -22,6 +23,8 @@ private:
     LogicEngine* logicEngine;
     SecurityManager* securityManager;
     NetworkManager* netManager;
+
+    adc_oneshot_unit_handle_t adc1_handle; // Shared ADC handle
 
 public:
     // NetworkManager netManager; // Moved to pointer

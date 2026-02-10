@@ -16,6 +16,7 @@ public:
     void read() override;
     std::string report() override;
     const char* getName() override;
+    float getDistance() { return distanceCm; }
 };
 
 #endif // FEED_LEVEL_SENSOR_H

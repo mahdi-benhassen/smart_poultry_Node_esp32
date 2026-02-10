@@ -3,14 +3,16 @@
 
 #include "interfaces/Sensor.h"
 #include "Config.h"
+#include "esp_adc/adc_oneshot.h"
 
 class MQ2Sensor : public Sensor {
 private:
     int pin;
     float smokeValue;
+    adc_oneshot_unit_handle_t adcHandle;
 
 public:
-    MQ2Sensor(int gpioPin);
+    MQ2Sensor(int gpioPin, adc_oneshot_unit_handle_t adcHandle);
     void init() override;
     void read() override;
     std::string report() override;

@@ -37,12 +37,20 @@ void SystemManager::registerActuator(Actuator* actuator) {
 void SystemManager::init() {
     ESP_LOGI(TAG, "Registering Sensors...");
 
+    // Initialize Shared ADC Unit
+    adc_oneshot_unit_init_cfg_t init_config1 = {
+        .unit_id = ADC_UNIT_1,
+        .clk_src = ADC_RTC_CLK_SRC_DEFAULT,
+        .ulp_mode = ADC_ULP_MODE_DISABLE,
+    };
+    ESP_ERROR_CHECK(adc_oneshot_new_unit(&init_config1, &adc1_handle));
+
     #if ENABLE_DHT22
         registerSensor(new DHTSensor(PIN_DHT, 22));
     #endif
 
     #if ENABLE_MQ137
-        registerSensor(new MQ137Sensor(PIN_MQ137));
+        registerSensor(new MQ137Sensor(PIN_MQ137, adc1_handle));
     #endif
 
     #if ENABLE_BH1750
@@ -66,7 +74,7 @@ void SystemManager::init() {
     #endif
 
     #if ENABLE_MQ2
-        registerSensor(new MQ2Sensor(PIN_MQ2));
+        registerSensor(new MQ2Sensor(PIN_MQ2, adc1_handle));
     #endif
 
     // Register Actuators

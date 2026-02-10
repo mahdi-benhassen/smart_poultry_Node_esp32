@@ -1,12 +1,10 @@
 #include "system/AutomationController.h"
-#include <Arduino.h>
 #include "system/Logger.h"
 
 // Include specific sensors for casting
-#include "sensors/DHTSensor.h"
-#include "sensors/MQ135Sensor.h"
-#include "sensors/UltrasonicSensor.h"
-#include "sensors/WaterLevelSensor.h"
+#include "sensors/Environment/DHTSensor.h"
+#include "sensors/Environment/MQ137Sensor.h"
+#include "sensors/Resource/FeedLevelSensor.h"
 
 void AutomationController::run(SystemManager& sysManager) {
     // 1. Climate Control (DHT -> Fan/Heater)
@@ -49,10 +47,11 @@ void AutomationController::run(SystemManager& sysManager) {
         }
     }
 
-    // 2. Air Quality (MQ135 -> Fan)
-    Sensor* sMQ = sysManager.getSensor("MQ135");
+    // 2. Air Quality (MQ135/MQ137 -> Fan)
+    // Note: Project uses MQ137 for ammonia.
+    Sensor* sMQ = sysManager.getSensor("MQ137"); 
     if (sMQ) {
-        MQ135Sensor* mq = (MQ135Sensor*)sMQ;
+        MQ137Sensor* mq = (MQ137Sensor*)sMQ;
         if (mq->getPPM() > THRESHOLD_AMMONIA_MAX) {
             if (aFan && !aFan->isOn()) {
                 aFan->activate();
@@ -65,22 +64,14 @@ void AutomationController::run(SystemManager& sysManager) {
     Sensor* sFeed = sysManager.getSensor("FeedLevel");
     Actuator* aFeeder = sysManager.getActuator("Feeder");
     if (sFeed) {
-        UltrasonicSensor* us = (UltrasonicSensor*)sFeed;
+        FeedLevelSensor* us = (FeedLevelSensor*)sFeed;
         // If distance is large (silo empty), trigger feeder logic? 
         // Or if feed level in trough is low? 
         // Assuming "Feed Level" measures distance from top of silo to feed. 
         // Large distance = Low Feed. 
-        // Wait, typically "Feed Level" in prompt might mean "Amount left".
-        // Let's assume Distance > Threshold means EMPTY.
-        if (us->getDistance() > THRESHOLD_FEED_LOW) { // If distance > 10cm, maybe that means empty?
-            // Actually usually: Low Feed = High Distance. 
-            // Let's assume user wants to REFILL if level is low.
-            // But "Feeder" usually dispenses to birds.
-            // Let's assume: If Feed in Trough (Ultrasonic pointing at trough) is Low (High Distance), Activate Feeder.
+        if (us->getDistance() > THRESHOLD_FEED_LOW) { // If distance > Threshold (High Distance = Low Level)
             if (aFeeder && !aFeeder->isOn()) {
                 aFeeder->activate(); 
-                // In real world, we would run it for X seconds then stop. 
-                // This simple logic might keep it on until filled.
                 Logger::log("AUTO", "Low Feed -> Feeder ON");
             }
         } else {
