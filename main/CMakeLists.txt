@@ -4,6 +4,8 @@ idf_component_register(
          "src/system/SystemManager.cpp"
          "src/system/LogicEngine.cpp"
          "src/communication/NetworkManager.cpp"
+         "src/communication/LoRaManager.cpp"
+         "src/security/SecurityManager.cpp"
          "src/actuators/RelayActuator.cpp"
          "src/sensors/Environment/DHTSensor.cpp"
          "src/sensors/Environment/MQ137Sensor.cpp"

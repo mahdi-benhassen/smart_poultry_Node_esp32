@@ -21,6 +21,8 @@ static const char *TAG = "SystemManager";
 
 SystemManager::SystemManager() {
     dataHub = new DataHub();
+    securityManager = new SecurityManager(dataHub);
+    netManager = new NetworkManager(dataHub);
     logicEngine = new LogicEngine(dataHub, this);
 }
 
