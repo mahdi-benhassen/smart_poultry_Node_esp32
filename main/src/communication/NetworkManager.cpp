@@ -209,7 +209,6 @@ void NetworkManager::init() {
         ESP_LOGW(TAG, "No WiFi config found. Starting SmartConfig...");
         startSmartConfig();
     }
-}
 
     // MQTT Init
     #ifdef ENABLE_MQTT
