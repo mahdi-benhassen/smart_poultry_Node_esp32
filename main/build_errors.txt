@@ -1,5 +1,5 @@
 Run git config --global --add safe.directory "$GITHUB_WORKSPACE"
-/__w/_temp/2e2af3d5-3ab9-4cf4-a833-0ea6018023cb.sh: 22: /opt/esp/idf/export.sh: [[: not found
+/__w/_temp/00183d59-a357-44a0-848c-07165a747f41.sh: 22: /opt/esp/idf/export.sh: [[: not found
 Detecting the Python interpreter
 Checking "python3" ...
 Python 3.8.10
@@ -102,7 +102,7 @@ Compiler supported targets: xtensa-esp32-elf
 -- Performing Test C_COMPILER_SUPPORTS_WFORMAT_SIGNEDNESS
 -- Performing Test C_COMPILER_SUPPORTS_WFORMAT_SIGNEDNESS - Success
 -- USING O3
--- App "poultry_system" version: a7a44ab
+-- App "poultry_system" version: 962b170
 -- Adding linker script /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/build/esp-idf/esp_system/ld/memory.ld
 -- Adding linker script /opt/esp/idf/components/esp_system/ld/esp32/sections.ld.in
 -- Adding linker script /opt/esp/idf/components/esp_rom/esp32/ld/esp32.rom.ld
@@ -113,17 +113,47 @@ Compiler supported targets: xtensa-esp32-elf
 -- Adding linker script /opt/esp/idf/components/esp_rom/esp32/ld/esp32.rom.newlib-funcs.ld
 -- Adding linker script /opt/esp/idf/components/soc/esp32/ld/esp32.peripherals.ld
 -- DEBUG: Use esp-modbus component folder: /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/managed_components/espressif__esp-modbus.
-ESP Insights Project commit: a7a44ab
-ESP RainMaker Project commit: a7a44ab
-CMake Error at /opt/esp/idf/tools/cmake/component.cmake:314 (message):
-  Include directory
-  '/__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/components/ArduinoJson/src'
-  is not a directory.
+ESP Insights Project commit: 962b170
+ESP RainMaker Project commit: 962b170
+-- Components: Adafruit_Sensor ArduinoJson BH1750 DHT-sensor-library MQ135 WiFiManager app_trace app_update arduino-LoRa bootloader bootloader_support bt chmorgan__esp-libhelix-mp3 cmock console cxx driver efuse esp-tls esp_adc esp_app_format esp_coex esp_common esp_eth esp_event esp_gdbstub esp_hid esp_http_client esp_http_server esp_https_ota esp_https_server esp_hw_support esp_lcd esp_local_ctrl esp_mm esp_netif esp_netif_stack esp_partition esp_phy esp_pm esp_psram esp_ringbuf esp_rom esp_system esp_timer esp_wifi espcoredump espressif__arduino-esp32 espressif__cbor espressif__esp-dsp espressif__esp-modbus espressif__esp-zboss-lib espressif__esp-zigbee-lib espressif__esp_daylight espressif__esp_diag_data_store espressif__esp_diagnostics espressif__esp_insights espressif__esp_modem espressif__esp_rainmaker espressif__esp_schedule espressif__esp_secure_cert_mgr espressif__jsmn espressif__json_generator espressif__json_parser espressif__libsodium espressif__mdns espressif__network_provisioning espressif__qrcode espressif__rmaker_common esptool_py fatfs freertos hal heap http_parser idf_test ieee802154 joltwallet__littlefs json log lwip main mbedtls mqtt newlib nvs_flash openthread partition_table perfmon protobuf-c protocomm pthread pubsubclient sdmmc soc spi_flash spiffs tcp_transport ulp unity usb vfs wear_levelling wifi_provisioning wpa_supplicant xtensa
+-- Component paths: /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/components/Adafruit_Sensor /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/components/ArduinoJson /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/components/BH1750 /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/components/DHT-sensor-library /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/components/MQ135 /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/components/WiFiManager /opt/esp/idf/components/app_trace /opt/esp/idf/components/app_update /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/components/arduino-LoRa /opt/esp/idf/components/bootloader /opt/esp/idf/components/bootloader_support /opt/esp/idf/components/bt /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/managed_components/chmorgan__esp-libhelix-mp3 /opt/esp/idf/components/cmock /opt/esp/idf/components/console /opt/esp/idf/components/cxx /opt/esp/idf/components/driver /opt/esp/idf/components/efuse /opt/esp/idf/components/esp-tls /opt/esp/idf/components/esp_adc /opt/esp/idf/components/esp_app_format /opt/esp/idf/components/esp_coex /opt/esp/idf/components/esp_common /opt/esp/idf/components/esp_eth /opt/esp/idf/components/esp_event /opt/esp/idf/components/esp_gdbstub /opt/esp/idf/components/esp_hid /opt/esp/idf/components/esp_http_client /opt/esp/idf/components/esp_http_server /opt/esp/idf/components/esp_https_ota /opt/esp/idf/components/esp_https_server /opt/esp/idf/components/esp_hw_support /opt/esp/idf/components/esp_lcd /opt/esp/idf/components/esp_local_ctrl /opt/esp/idf/components/esp_mm /opt/esp/idf/components/esp_netif /opt/esp/idf/components/esp_netif_stack /opt/esp/idf/components/esp_partition /opt/esp/idf/components/esp_phy /opt/esp/idf/components/esp_pm /opt/esp/idf/components/esp_psram /opt/esp/idf/components/esp_ringbuf /opt/esp/idf/components/esp_rom /opt/esp/idf/components/esp_system /opt/esp/idf/components/esp_timer /opt/esp/idf/components/esp_wifi /opt/esp/idf/components/espcoredump /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/managed_components/espressif__arduino-esp32 /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/managed_components/espressif__cbor /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/managed_components/espressif__esp-dsp /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/managed_components/espressif__esp-modbus /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/managed_components/espressif__esp-zboss-lib /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/managed_components/espressif__esp-zigbee-lib /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/managed_components/espressif__esp_daylight /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/managed_components/espressif__esp_diag_data_store /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/managed_components/espressif__esp_diagnostics /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/managed_components/espressif__esp_insights /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/managed_components/espressif__esp_modem /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/managed_components/espressif__esp_rainmaker /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/managed_components/espressif__esp_schedule /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/managed_components/espressif__esp_secure_cert_mgr /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/managed_components/espressif__jsmn /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/managed_components/espressif__json_generator /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/managed_components/espressif__json_parser /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/managed_components/espressif__libsodium /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/managed_components/espressif__mdns /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/managed_components/espressif__network_provisioning /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/managed_components/espressif__qrcode /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/managed_components/espressif__rmaker_common /opt/esp/idf/components/esptool_py /opt/esp/idf/components/fatfs /opt/esp/idf/components/freertos /opt/esp/idf/components/hal /opt/esp/idf/components/heap /opt/esp/idf/components/http_parser /opt/esp/idf/components/idf_test /opt/esp/idf/components/ieee802154 /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/managed_components/joltwallet__littlefs /opt/esp/idf/components/json /opt/esp/idf/components/log /opt/esp/idf/components/lwip /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/main /opt/esp/idf/components/mbedtls /opt/esp/idf/components/mqtt /opt/esp/idf/components/newlib /opt/esp/idf/components/nvs_flash /opt/esp/idf/components/openthread /opt/esp/idf/components/partition_table /opt/esp/idf/components/perfmon /opt/esp/idf/components/protobuf-c /opt/esp/idf/components/protocomm /opt/esp/idf/components/pthread /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/components/pubsubclient /opt/esp/idf/components/sdmmc /opt/esp/idf/components/soc /opt/esp/idf/components/spi_flash /opt/esp/idf/components/spiffs /opt/esp/idf/components/tcp_transport /opt/esp/idf/components/ulp /opt/esp/idf/components/unity /opt/esp/idf/components/usb /opt/esp/idf/components/vfs /opt/esp/idf/components/wear_levelling /opt/esp/idf/components/wifi_provisioning /opt/esp/idf/components/wpa_supplicant /opt/esp/idf/components/xtensa
+-- Configuring done (27.2s)
+CMake Error at /opt/esp/idf/tools/cmake/component.cmake:480 (add_library):
+  Cannot find source file:
+
+    /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/components/Adafruit_Sensor/Adafruit_Sensor.cpp
+
+  Tried extensions .c .C .c++ .cc .cpp .cxx .cu .mpp .m .M .mm .ixx .cppm
+  .ccm .cxxm .c++m .h .hh .h++ .hm .hpp .hxx .in .txx .f .F .for .f77 .f90
+  .f95 .f03 .hip .ispc
 Call Stack (most recent call first):
-  /opt/esp/idf/tools/cmake/component.cmake:490 (__component_add_include_dirs)
-  components/ArduinoJson/CMakeLists.txt:1 (idf_component_register)
+  components/Adafruit_Sensor/CMakeLists.txt:1 (idf_component_register)
 
 
--- Configuring incomplete, errors occurred!
+CMake Error at /opt/esp/idf/tools/cmake/component.cmake:480 (add_library):
+  Cannot find source file:
+
+    /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/components/BH1750/BH1750.cpp
+
+  Tried extensions .c .C .c++ .cc .cpp .cxx .cu .mpp .m .M .mm .ixx .cppm
+  .ccm .cxxm .c++m .h .hh .h++ .hm .hpp .hxx .in .txx .f .F .for .f77 .f90
+  .f95 .f03 .hip .ispc
+Call Stack (most recent call first):
+  components/BH1750/CMakeLists.txt:1 (idf_component_register)
+
+
+CMake Error at /opt/esp/idf/tools/cmake/component.cmake:480 (add_library):
+  No SOURCES given to target: __idf_Adafruit_Sensor
+Call Stack (most recent call first):
+  components/Adafruit_Sensor/CMakeLists.txt:1 (idf_component_register)
+
+
+CMake Error at /opt/esp/idf/tools/cmake/component.cmake:480 (add_library):
+  No SOURCES given to target: __idf_BH1750
+Call Stack (most recent call first):
+  components/BH1750/CMakeLists.txt:1 (idf_component_register)
+
+
+CMake Generate step failed.  Build files cannot be regenerated correctly.
 cmake failed with exit code 1, output of the command is in the /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/build/log/idf_py_stderr_output_305 and /__w/smart_poultry_Node_esp32/smart_poultry_Node_esp32/build/log/idf_py_stdout_output_305
 Error: Process completed with exit code 2.
