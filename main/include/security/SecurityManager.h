@@ -1,7 +1,7 @@
 #ifndef SECURITY_MANAGER_H
 #define SECURITY_MANAGER_H
 
-#include <Arduino.h>
+#include <string>
 #include "Config.h"
 #include "system/DataHub.h"
 
@@ -19,12 +19,12 @@ public:
 
     // Static Utils (Config/Crypto)
     static void initPreferences(); // Renamed from init() to avoid confusion
-    static String encrypt(String payload);
-    static String decrypt(String payload);
+    static std::string encrypt(std::string payload);
+    static std::string decrypt(std::string payload);
     static const char* getWifiSSID();
     static const char* getWifiPassword();
     static void saveMQTT(const char* server, int port);
-    static String getMQTTServer();
+    static std::string getMQTTServer();
     static int getMQTTPort();
 };
 

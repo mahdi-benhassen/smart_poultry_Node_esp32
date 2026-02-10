@@ -229,7 +229,7 @@ void NetworkManager::init() {
     if (mqtt_client == NULL) {
         ESP_LOGE(TAG, "Failed to init MQTT client");
     } else {
-        esp_mqtt_client_register_event(mqtt_client, ESP_EVENT_ANY_ID, mqtt_event_handler, this);
+        esp_mqtt_client_register_event(mqtt_client, (esp_mqtt_event_id_t)ESP_EVENT_ANY_ID, mqtt_event_handler, this);
         err = esp_mqtt_client_start(mqtt_client);
         if (err != ESP_OK) {
             ESP_LOGE(TAG, "Failed to start MQTT client: %s", esp_err_to_name(err));

@@ -58,24 +58,53 @@ void SecurityManager::disarm() {
 // Static Utils
 // =================================================================================
 
-String SecurityManager::encrypt(String payload) {
-    #ifdef ENABLE_ENCRYPTION
-        // Simple mock encryption
-        return "ENC:" + payload; 
-    #else
-        return payload;
-    #endif
+std::string SecurityManager::encrypt(std::string payload) {
+    mbedtls_aes_context aes;
+    mbedtls_aes_init(&aes);
+    mbedtls_aes_setkey_enc(&aes, aes_key, 128);
+
+    int len = payload.length();
+    int pad = 16 - (len % 16);
+    std::string padded = payload;
+    padded.append(pad, (char)pad);
+
+    std::string output;
+    output.resize(padded.length());
+
+    for (size_t i = 0; i < padded.length(); i += 16) {
+        mbedtls_aes_crypt_ecb(&aes, MBEDTLS_AES_ENCRYPT, 
+            (const unsigned char*)padded.c_str() + i, 
+            (unsigned char*)&output[0] + i);
+    }
+    
+    mbedtls_aes_free(&aes);
+    return output;
 }
 
-String SecurityManager::decrypt(String payload) {
-    #ifdef ENABLE_ENCRYPTION
-        if (payload.startsWith("ENC:")) {
-            return payload.substring(4);
-        }
-        return payload;
-    #else
-        return payload;
-    #endif
+std::string SecurityManager::decrypt(std::string payload) {
+    if (payload.length() % 16 != 0) return "";
+
+    mbedtls_aes_context aes;
+    mbedtls_aes_init(&aes);
+    mbedtls_aes_setkey_dec(&aes, aes_key, 128);
+
+    std::string output;
+    output.resize(payload.length());
+
+    for (size_t i = 0; i < payload.length(); i += 16) {
+        mbedtls_aes_crypt_ecb(&aes, MBEDTLS_AES_DECRYPT, 
+            (const unsigned char*)payload.c_str() + i, 
+            (unsigned char*)&output[0] + i);
+    }
+    
+    mbedtls_aes_free(&aes);
+
+    int pad = output.back();
+    if (pad > 0 && pad <= 16) {
+        output.resize(output.length() - pad);
+    }
+    
+    return output;
 }
 
 const char* SecurityManager::getWifiSSID() {
@@ -92,8 +121,8 @@ void SecurityManager::saveMQTT(const char* server, int port) {
     preferences.putInt("mqtt_port", port);
 }
 
-String SecurityManager::getMQTTServer() {
-    return preferences.getString("mqtt_server", MQTT_SERVER);
+std::string SecurityManager::getMQTTServer() {
+    return std::string(preferences.getString("mqtt_server", MQTT_SERVER).c_str());
 }
 
 int SecurityManager::getMQTTPort() {
