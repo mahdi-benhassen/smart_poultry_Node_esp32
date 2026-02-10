@@ -3400,9 +3400,9 @@ void WiFiManager::DEBUG_WM(wm_debuglevel_t level,Generic text,Genericb textb) {
     multi_heap_info_t info;
     heap_caps_get_info(&info, MALLOC_CAP_INTERNAL);
     uint32_t free = info.total_free_bytes;
-    uint16_t max  = info.largest_free_block;
+    uint32_t max  = info.largest_free_block;
     uint8_t frag = 100 - (max * 100) / free;
-    _debugPort.printf("[MEM] free: %5u | max: %5u | frag: %3u%% \n", free, max, frag);
+    _debugPort.printf("[MEM] free: %5u | max: %5u | frag: %3u%% \n", (unsigned int)free, (unsigned int)max, (unsigned int)frag);
     #endif
   }
 

@@ -9,7 +9,7 @@ void LoRaManager::init() {
     if (loraMutex == NULL) {
         loraMutex = xSemaphoreCreateMutex();
     }
-    LoRa.setPins(PIN_LORA_CS, PIN_LORA_RESET, PIN_LORA_IRQ);
+    LoRa.setPins(PIN_LORA_CS, PIN_LORA_RST, PIN_LORA_IRQ);
     if (!LoRa.begin(915E6)) { // 915MHz or 868MHz depending on region
         Logger::log("LoRa", "Starting LoRa failed!");
         return;
@@ -21,7 +21,7 @@ void LoRaManager::init() {
 void LoRaManager::sendPacket(String data) {
     #ifdef ENABLE_LORA
     if (loraMutex != NULL && xSemaphoreTake(loraMutex, portMAX_DELAY)) {
-        String encrypted = SecurityManager::encrypt(data);
+        String encrypted = SecurityManager::encrypt(std::string(data.c_str())).c_str();
         LoRa.beginPacket();
         LoRa.print(encrypted);
         LoRa.endPacket();
@@ -64,8 +64,8 @@ void LoRaManager::receivePacket(int packetSize) {
         }
         xSemaphoreGive(loraMutex); // Release early
         
-        String decrypted = SecurityManager::decrypt(incoming);
-        Logger::log("LoRa", "Received: " + decrypted);
+        std::string decrypted = SecurityManager::decrypt(std::string(incoming.c_str()));
+        Logger::log("LoRa", std::string("Received: ") + decrypted);
     }
     #endif
 }
