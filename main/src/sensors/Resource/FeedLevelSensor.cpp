@@ -24,20 +24,28 @@ void FeedLevelSensor::read() {
     ets_delay_us(10);
     gpio_set_level((gpio_num_t)trigPin, 0);
 
-    // Measure echo (Timeout handled roughly)
-    // In production, use RMT or interrupts
-    int timeout = 20000;
-    while (gpio_get_level((gpio_num_t)echoPin) == 0 && timeout-- > 0);
+    // Measure echo (Timeout handled with time check)
+    int64_t start_wait = esp_timer_get_time();
+    while (gpio_get_level((gpio_num_t)echoPin) == 0) {
+        if (esp_timer_get_time() - start_wait > 30000) { // 30ms timeout
+             distanceCm = -1.0;
+             return;
+        }
+    }
+
     int64_t start = esp_timer_get_time();
-    timeout = 20000;
-    while (gpio_get_level((gpio_num_t)echoPin) == 1 && timeout-- > 0);
+    while (gpio_get_level((gpio_num_t)echoPin) == 1) {
+         if (esp_timer_get_time() - start > 30000) { // 30ms timeout (~5m)
+             break;
+         }
+    }
     int64_t end = esp_timer_get_time();
 
-    if (timeout > 0) {
-        float duration = (float)(end - start);
+    float duration = (float)(end - start);
+    if (duration > 0 && duration < 30000) {
         distanceCm = duration / 58.0;
     } else {
-        distanceCm = -1.0; // Error
+        distanceCm = -1.0; // Error or Out of range
     }
 }
 

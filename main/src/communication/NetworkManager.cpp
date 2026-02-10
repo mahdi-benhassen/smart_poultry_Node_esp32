@@ -199,28 +199,23 @@ void NetworkManager::init() {
         if (err != ESP_OK) ESP_LOGW(TAG, "Failed to set config: %s", esp_err_to_name(err));
     }
 
-    err = esp_wifi_start();
-    if (err != ESP_OK) { ESP_LOGE(TAG, "Failed to start wifi: %s", esp_err_to_name(err)); return; }
+    ESP_LOGI(TAG, "Starting WiFi...");
+    ESP_ERROR_CHECK(esp_wifi_start());
 
-    if (!has_config) {
-        ESP_LOGI(TAG, "No WiFi config found. Starting SmartConfig...");
-        startSmartConfig();
+    if (has_config) {
+        ESP_LOGI(TAG, "Connecting to saved network...");
+        esp_wifi_connect();
     } else {
-        ESP_LOGI(TAG, "Connecting to WiFi...");
-        // wifi_event_handler will trigger connect on STA_START
+        ESP_LOGW(TAG, "No WiFi config found. Starting SmartConfig...");
+        startSmartConfig();
     }
-
-    ESP_LOGI(TAG, "wifi_init_sta finished.");
+}
 
     // MQTT Init
     #ifdef ENABLE_MQTT
     esp_mqtt_client_config_t mqtt_cfg = {};
     #ifdef MQTT_SERVER
     mqtt_cfg.broker.address.uri = MQTT_SERVER; // Ensure MQTT_SERVER includes scheme e.g. "mqtt://broker.com"
-    // TODO: Update this URL to your actual deployment server or S3 bucket before shipping.
-    // If MQTT_SERVER is just domain, prepend scheme
-    // For now assuming full URI or we construct it.
-    // Let's use a safer approach if needed.
     #else
     mqtt_cfg.broker.address.uri = "mqtt://broker.hivemq.com";
     #endif

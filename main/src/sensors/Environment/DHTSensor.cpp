@@ -33,10 +33,6 @@ static int wait_for_level(gpio_num_t pin, int level, int timeout_us) {
 void DHTSensor::read() {
     uint8_t data[5] = {0};
     
-    // Critical Section for precise timing
-    portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
-    portENTER_CRITICAL(&mux);
-
     // 1. Start Signal
     gpio_set_direction(pin, GPIO_MODE_OUTPUT);
     gpio_set_level(pin, 0);
@@ -44,6 +40,10 @@ void DHTSensor::read() {
     gpio_set_level(pin, 1);
     ets_delay_us(40);
     gpio_set_direction(pin, GPIO_MODE_INPUT);
+
+    // Critical Section for precise timing (Read phase only)
+    portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
+    portENTER_CRITICAL(&mux);
 
     // 2. Wait for Response
     if (wait_for_level(pin, 0, 80) == -1) { 
